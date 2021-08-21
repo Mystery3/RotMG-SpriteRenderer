@@ -85,7 +85,7 @@ class image_handler:
     
     def render_mask(self, scale: int, clothing_texture: Image, accessory_texture: Image) -> Image:
         #initial render to paste onto
-        base = self.render(5)
+        base = self.render(4)
 
         #size grabbing
         base_x, base_y = base.size
@@ -95,16 +95,16 @@ class image_handler:
         clothing_texture = clothing_texture.convert('RGBA')
         clothing_texture_size = clothing_texture.size[0]
         clothing_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
-        for i in range(5, base_x, clothing_texture_size):
-            for j in range(5, base_y, clothing_texture_size):
+        for i in range(4, base_x, clothing_texture_size):
+            for j in range(4, base_y, clothing_texture_size):
                 clothing_texture_filled.alpha_composite(clothing_texture, (i, base_y - j - clothing_texture_size))
 
         #creating a texture image to cut from (accessory)
         accessory_texture = accessory_texture.convert('RGBA')
         accessory_texture_size = accessory_texture.size[0]
         accessory_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
-        for i in range(5, base_x, accessory_texture_size):
-            for j in range(5, base_y, accessory_texture_size):
+        for i in range(4, base_x, accessory_texture_size):
+            for j in range(4, base_y, accessory_texture_size):
                 accessory_texture_filled.alpha_composite(accessory_texture, (i, base_y - j - accessory_texture_size))
 
         #reading mask, saving intensity and position of red and green pixels
@@ -119,22 +119,22 @@ class image_handler:
 
         #according to previous step, cut from texture image to paste onto base image, then paste transparent layer for brightness adjust
         for i in primaries:
-            cropped = clothing_texture_filled.crop((i[1] * 5 + 5, i[2] * 5 + 5, i[1] * 5 + 2 * 5, i[2] * 5 + 2 * 5))
-            base.alpha_composite(cropped, (i[1] * 5 + 5, i[2] * 5 + 5))
+            cropped = clothing_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
+            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
 
-            obscure = Image.new('RGBA', (5, 5), (0, 0, 0, 255 - i[0]))
-            base.alpha_composite(obscure, (i[1] * 5 + 5, i[2] * 5 + 5))
+            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
 
         for i in secondaries:
-            cropped = accessory_texture_filled.crop((i[1] * 5 + 5, i[2] * 5 + 5, i[1] * 5 + 2 * 5, i[2] * 5 + 2 * 5))
-            base.alpha_composite(cropped, (i[1] * 5 + 5, i[2] * 5 + 5))
+            cropped = accessory_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
+            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
 
-            obscure = Image.new('RGBA', (5, 5), (0, 0, 0, 255 - i[0]))
-            base.alpha_composite(obscure, (i[1] * 5 + 5, i[2] * 5 + 5))
+            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
 
         #create shadow
         silhouette = self.silhouette().resize((x * scale, y * scale), resample=Image.BOX)
-        bg = Image.new('RGBA', (int(base_x * (scale / 5)), int(base_y * (scale / 5))), (0, 0, 0, 0))
+        bg = Image.new('RGBA', (int(base_x * (scale / 4)), int(base_y * (scale / 4))), (0, 0, 0, 0))
 
         if 'selected' in shadow_check.state():
             bg.alpha_composite(silhouette, (scale, scale))
@@ -145,7 +145,7 @@ class image_handler:
             for j in (-1, 1):    bg.alpha_composite(silhouette, (scale+i, scale+j))
 
         #drop resized base onto shadow
-        base = base.resize((int(base_x * (scale / 5)), int(base_y * (scale / 5))), resample=Image.BOX)
+        base = base.resize((int(base_x * (scale / 4)), int(base_y * (scale / 4))), resample=Image.BOX)
         bg.alpha_composite(base, (0, 0))
 
         return bg

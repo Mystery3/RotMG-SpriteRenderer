@@ -17,7 +17,7 @@ A replacement for Tuvior's Tool
 - Modes, various modes, described below
 - Ability to render the entire sheet
 - Save as a PNG or a GIF
-- GIFs are previewed
+- GIFs are previewed before saving
 - Images that would extend beyond the window are instead displayed in a separate window
 
 # Modes

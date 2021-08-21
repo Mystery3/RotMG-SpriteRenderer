@@ -6,65 +6,7 @@ from math import ceil, floor
 from threading import Timer
 from imageio import mimsave, imread
 from io import BytesIO
-
-#class for images
-class image_handler:
-    def __init__(self, image: Image):
-        self.image = image.convert('RGBA')
-    
-    def set_image_from_path(self, path: str) -> None:
-        self.image = Image.open(path)
-
-    def resize_image(self, scale: int, size: int) -> Image:
-        return self.image.resize(((int(self.image.size[0]/size))*size*scale, (int(self.image.size[1]/size))*size*scale), resample = Image.BOX)
-    
-    def silhouette(self) -> Image:
-        x = self.image.size[0]
-        inc = 0
-        image_copy = self.image.copy()
-
-        for i in self.image.getdata():
-            if i[3] != 0:
-                image_copy.putpixel((int(inc % x), int(inc / x)), (0, 0, 0, 255))
-            else:
-                image_copy.putpixel((int(inc % x), int(inc / x)), (0, 0, 0, 0))
-            inc+= 1
-
-        return image_copy
-
-    def create_outline(self, scale: int, size: int) -> Image:
-        silhouette = self.silhouette()
-
-        sized_outline = silhouette.resize(((int(self.image.size[0]/size))*size*scale, (int(self.image.size[1]/size))*size*scale), resample = Image.BOX)
-
-        bg = Image.new('RGBA', ((int(self.image.size[0]/size))*(size+2)*scale, (int(self.image.size[1]/size))*(size+2)*scale), (0, 0, 0, 0))
-        bg.alpha_composite(sized_outline, (scale-1, scale-1))
-        bg.alpha_composite(sized_outline, (scale+1, scale-1))
-        bg.alpha_composite(sized_outline, (scale+1, scale+1))
-        bg.alpha_composite(sized_outline, (scale-1, scale+1))
-
-        return bg
-
-    def drop_shadow(self, scale: int, size: int) -> Image:
-        silhouette = self.silhouette()
-
-        sized_image = silhouette.resize(((int(self.image.size[0]/size))*size*scale, (int(self.image.size[1]/size))*size*scale), resample = Image.BOX)
-
-        bg = Image.new('RGBA', ((int(self.image.size[0]/size))*(size+2)*scale, (int(self.image.size[1]/size))*(size+2)*scale), (0, 0, 0, 0))
-        bg.alpha_composite(sized_image, (scale, scale))
-        bg = bg.filter(ImageFilter.GaussianBlur(radius=scale/2))
-
-        return bg
-
-    def render(self, scale: int, size: int) -> Image:
-        img = self.create_outline(scale, size)
-        img.alpha_composite(self.drop_shadow(scale, size))
-        img.alpha_composite(self.resize_image(scale, size), (scale, scale))
-        
-        return img.convert('RGBA')
-
-    def show_image(self) -> None:
-        self.image.show()
+from base64 import b64decode
 
 #class for sheets
 class sheet_handler:
@@ -74,12 +16,12 @@ class sheet_handler:
     def sheet_size(self) -> tuple:
         return self.sheet.size
     
-    def get_image(self, index: int, size: int, columnspan=0) -> Image:
+    def get_image(self, index: int, x1: int, y1: int, multirow=1) -> Image:
         length = self.sheet_size()[0]
-        row = index % (length/size)
-        column = floor(index / (length/size))
+        column = index % (length/x)
+        row = floor(index / (length/y) / multirow)
 
-        return self.sheet.crop((row*size, column*size, row*size + size + columnspan*size, column*size + size + rowspan*size)).convert('RGBA')
+        return self.sheet.crop((column * x, row * y, column * x + x1, row * y + y1)).convert('RGBA')
 
     def close_sheet(self):
         global seek_index
@@ -96,6 +38,116 @@ class sheet_handler:
 
         for widg in picture_widgets:    widg.state(('disabled',))
 
+#class for images
+class image_handler:
+    def __init__(self, image: Image, mask=None):
+        self.image = image.convert('RGBA')
+        self.mask = mask
+
+    def silhouette(self) -> Image:
+        #create silhouette
+        x = self.image.size[0]
+        inc = 0
+
+        silhouette = self.image.copy()
+        for i in self.image.getdata():
+            if i[3] != 0:
+                silhouette.putpixel((int(inc % x), int(inc / x)), (0, 0, 0, 255))
+            else:
+                silhouette.putpixel((int(inc % x), int(inc / x)), (0, 0, 0, 0))
+            inc+= 1
+
+        return silhouette
+
+    def render(self, scale: int) -> Image:
+        x, y = self.image.size
+
+        #silhouette
+        silhouette = self.silhouette()
+
+        #resize silhouette and create bg
+        sized_silhouette = silhouette.resize((x*scale, y*scale), resample = Image.BOX)
+        bg = Image.new('RGBA', ((x+2)*scale, (y+2)*scale), (0, 0, 0, 0))
+
+        #shadow and outline if no mask
+        if self.mask == None:
+            if 'selected' in shadow_check.state():
+                bg.alpha_composite(sized_silhouette, (scale, scale))
+                bg = bg.filter(ImageFilter.GaussianBlur(radius=scale/2))
+
+            for i in (-1, 1):
+                for j in (-1, 1):    bg.alpha_composite(sized_silhouette, (scale+i, scale+j))
+
+        #final image
+        bg.alpha_composite(self.image.resize((x*scale, y*scale), resample=Image.BOX), (scale, scale))
+        
+        return bg.convert('RGBA')
+    
+    def render_mask(self, scale: int, clothing_texture: Image, accessory_texture: Image) -> Image:
+        #initial render to paste onto
+        base = self.render(4)
+
+        #size grabbing
+        base_x, base_y = base.size
+        x, y = self.image.size
+
+        #creating a texture image to cut from (clothing)
+        clothing_texture_size = clothing_texture.size[0]
+        clothing_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
+        for i in range(4, base_x, clothing_texture_size):
+            for j in range(4, base_y, clothing_texture_size):
+                clothing_texture_filled.paste(clothing_texture, (i, base_y - j - clothing_texture_size))
+
+        #creating a texture image to cut from (accessory)
+        accessory_texture_size = accessory_texture.size[0]
+        accessory_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
+        for i in range(4, base_x, accessory_texture_size):
+            for j in range(4, base_y, accessory_texture_size):
+                accessory_texture_filled.paste(accessory_texture, (i, base_y - j - accessory_texture_size))
+
+        #reading mask, saving intensity and position of red and green pixels
+        inc = 0
+        primaries, secondaries = [], []
+        for i in self.mask.getdata():
+            if i[0] != 0:
+                primaries.append((i[0], int(inc % x), int(inc / x)))
+            elif i[1] != 0:
+                secondaries.append((i[1], int(inc % x), int(inc / x)))
+            inc+= 1
+
+        #according to previous step, cut from texture image to paste onto base image, then paste transparent layer for brightness adjust
+        for i in primaries:
+            cropped = clothing_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
+            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
+
+            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
+
+        for i in secondaries:
+            cropped = accessory_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
+            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
+
+            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
+
+        #create shadow
+        silhouette = self.silhouette().resize((x * scale, y * scale), resample=Image.BOX)
+        bg = Image.new('RGBA', (int(base_x * (scale / 4)), int(base_y * (scale / 4))), (0, 0, 0, 0))
+
+        if 'selected' in shadow_check.state():
+            bg.alpha_composite(silhouette, (scale, scale))
+            bg = bg.filter(ImageFilter.GaussianBlur(radius=scale/2))
+
+        #outline
+        for i in (-1, 1):
+            for j in (-1, 1):    bg.alpha_composite(silhouette, (scale+i, scale+j))
+
+        #drop resized base onto shadow
+        base = base.resize((int(base_x * (scale / 4)), int(base_y * (scale / 4))), resample=Image.BOX)
+        bg.alpha_composite(base, (0, 0))
+
+        return bg
+
 #class for seeking
 class index:
     def __init__(self, num: int):
@@ -104,8 +156,8 @@ class index:
     def hex_to_int(self, hex: str) -> None:
         self.num = int(hex[2:], 16)
 
-#timer class
-class repeated_timer(object):
+#class for gif driving
+class repeated_timer:
     def __init__(self, interval, function):
         self._timer = None
         self.interval = interval
@@ -131,31 +183,104 @@ class repeated_timer(object):
         self.is_running = False
         frame = 0
 
+#class for image previewing
+class preview_image:
+    def __init__(self, label: Label):
+        self.label = label
+    
+    def update_image(self, image: Image):
+        sized_image = image.convert('RGBA').resize((int(image.size[0]*75/x), int(image.size[1]*75/y)), resample = Image.BOX) #size is 75 times the size divided by size (size is constant while keeping image dimensions)
+        photo_image = ImageTk.PhotoImage(sized_image)
+
+        self.label.config(image=photo_image)
+
+        self.photo_image = photo_image
+
+#class for color and cloth picking
+class color_picker:
+    def __init__(self, image: Image, image_label: Label, title: str):
+        self.image = image
+        self.image_label = image_label
+        self.title = title
+    
+    def set_image(self, img: Image):
+        self.image = img
+        display_image_one = ImageTk.PhotoImage(self.image.resize((int(height/54), int(height/54)), resample=Image.BOX))
+        self.image_label.config(image=display_image_one)
+
+        display_image_two = ImageTk.PhotoImage(self.image.resize((60, 60), resample=Image.BOX))
+        self.color_preview.config(image=display_image_two)
+
+        #replacement for global definition
+        self.display_image_one = display_image_one
+        self.display_image_two = display_image_two
+
+    def choose_color(self):
+        if (new_color := colorchooser.askcolor('#ffffff')[1]) != None:
+            self.set_image(Image.new('RGBA', (10, 10), new_color))
+
+    def choose_cloth(self):
+        b64_cloths = [b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFTU1NmZmZBC4lqQAAABFJREFUeJxjCHVgWNXAgIMEAH9TCLzkBdSkAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAgMAAADwAc52AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFNQlPbBOgAwugaLCN6gAAABdJREFUeJxjkGJg8HBgWOjA0NLAIMYAABKbAp7dfVT4AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAD9QTFRFc3NzOTNHR0YvPUc6MUk4OEJHKzgwNFxwTUQXQEcvMVFgP0c7Y3ppVkodZmhzMywqZmBePU9/RztDRzdAOjQwPoOYmwAAACZJREFUeJxjYGBkYmZhYGVj5+BkYODi5uFl4ODjF2BnEBTiEBYBAAmYAOrM5quqAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFBAMAAAB/QTvWAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFWysLWzMLWyAIwZM5updm18AGKQAAABhJREFUeJxjYAACQUEBBiUlBQYTEwcQBgAL4wHnJ4dSPwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAgMAAADUn3btAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAAADx4b0MXUjUhKAAAABBJREFUeJxjEGJoYVBk8AAAA8UBAGPzOUIAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFa1szhGkfJ0VMFltmtQAA3Gvk0AAAABRJREFUeJxjYGBgEBRkUFZmcHEBAAMSAPGtRs5jAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAA999rySy9mgAAAA5JREFUeJxjYAACBQYGAABoACEO48ZHAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFb23LAAAAnCveuwAAAAxJREFUeJxjCGAAQwAFCAFBQtVWSQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAgMAAADwXCcuAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAH7T29v/ADx4AGnTEzcLwwAAACZJREFUeJxjEFtQwMC6QoDBMYsBjEFssQUODFGNDAxZLAJgDGQDAKK4B5//az36AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRF88RJ/+5Z1IY9Ym6MdI2zo73ZQkhmAKnDwgAAADNJREFUeJxjYBQEAgYhExcXIwZhF0dXZxDpAiQNGAWNGYTNEtOApLGhMYI0A5JCxsbGRgD7ZgjJpOI9/gAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABJQTFRFgi8gwRkZwVxVWSAWc3Nzt8GFcgbo6gAAAB5JREFUeJxjYGAQFFRiwCSNjRkYXFBIFxclpVBkEgCGYAZyLymKYAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAgMAAACd/+6DAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAAAAIJv/uf+z////rxwV9QAAACVJREFUeJxjYBBgYFAoYWBgEHBgAAEWDgYGWRDNCCTYHRgYGRkAH9ABbLrxs9EAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFPxgA////RFB+KztbZXqgAP//n7rMfQkbcwAAADNJREFUeJxjYBAUYGBgYFRSAJFGSiAOk4oDkGQIcUoAsllcgKQCg0oCAxMDQxoDA0gBAwBhggPsOHDfnwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAQMAAADaX5RTAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFMKTy////CGt/CgAAABtJREFUeJxjYGBgYGZgYG8AISBIYGD4AEYMDAAjMwNSwdMtOQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFAAD/lgD03h0d/64M/+oMDP9IYf/ncdl+vQAAAC5JREFUeJxjYFR2TWBgEDIJY2BgADEFGIBMRgUGIFPIgAHIVHZgADJNAhgYEEoBubgG5YKCELsAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAB4////C1IXrgAAABJJREFUeJxjMGCQYOhgOMCQAAAHqgHxkZYmYgAAAABJRU5ErkJggg==']
+        button_images, actual_images = [], []
+
+        chooser = Toplevel()
+        chooser.geometry('151x151')
+        chooser.configure(bg='#36393e')
+        for i in range(len(b64_cloths)):
+            button_images.append(ImageTk.PhotoImage(Image.open(BytesIO(b64decode(b64_cloths[i]))).resize((20, 20))))
+            actual_images.append(Image.open(BytesIO(b64decode(b64_cloths[i]))))
+
+            button = Button(chooser, image=button_images[i], command=lambda i=i: self.set_image(actual_images[i]))
+            button.grid(row=int(i / 4), column=i % 4)
+
+        #replacement for global definition
+        self.button_images = button_images
+        self.actual_images = actual_images
+
+    def upload_cloth(self):
+        try:
+            image = Image.open(filedialog.askopenfilename())
+            self.set_image(image)
+        except Exception as e:
+            messagebox.showwarning('Warning', 'No Cloth Uploaded: ' + str(e))
+
+    def generate(self):
+        selection_window = Toplevel()
+        selection_window.title(self.title)
+        selection_window.geometry('233x98')
+        selection_window.configure(bg='#36393e')
+
+        #image label for previews
+        color_preview_image = ImageTk.PhotoImage(self.image.resize((60, 60), resample=Image.BOX))
+
+        color_preview = Label(selection_window, image=color_preview_image)
+        color_preview.grid(row=0, column=0)
+
+        #main buttons
+        buttons = Frame(selection_window)
+
+        choose_color = Button(buttons, text='Choose Color', command=self.choose_color)
+        choose_color.grid(row=0, column=0)
+
+        choose_cloth = Button(buttons, text='Choose Cloth', command=self.choose_cloth)
+        choose_cloth.grid(row=1, column=0)
+
+        upload_cloth = Button(buttons, text='Upload Cloth', command=self.upload_cloth)
+        upload_cloth.grid(row=2, column=0)
+
+        buttons.grid(row=0, column=1)
+
+        #replacement for global definition
+        self.color_preview_image = color_preview_image
+        self.color_preview = color_preview
+
 #tk button commands
 def update_previews():
     try:
-        update_preview_image()
-        update_preview_mask()
+        preview_sheet_sample.update_image(sheet.get_image(seek_index.num, x, y))
+        preview_mask_sample.update_image(mask_sheet.get_image(seek_index.num, x, y))
     except:
         pass
-
-def update_preview_image():
-    global pic
-    previewed_image = sheet.get_image(seek_index.num, size, columnspan=columnspan)
-    previewed_image = previewed_image.convert('RGBA').resize(
-        (int(previewed_image.size[0]*75/size), int(previewed_image.size[1]*75/size)), #size is 75 times the size divided by size (size is constant while keeping image dimensions)
-        resample = Image.BOX)
-    pic = ImageTk.PhotoImage(previewed_image)
-    preview_image.config(image=pic)
-
-def update_preview_mask():
-    global premask
-    previewed_mask = mask_sheet.get_image(seek_index.num, size, columnspan=columnspan)
-    previewed_mask = previewed_mask.convert('RGBA').resize(
-        (int(previewed_mask.size[0]*75/size), int(previewed_mask.size[1]*75/size)), #size is 75 times the size divided by size (size is constant while keeping image dimensions)
-        resample = Image.BOX)
-    premask = ImageTk.PhotoImage(previewed_mask)
-    preview_mask.config(image=premask)
 
 def update_index_frame_from_button(increment: int):
     if seek_index.num + increment > -1:    seek_index.num = seek_index.num + increment
@@ -164,16 +289,16 @@ def update_index_frame_from_button(increment: int):
     seek_entry.insert(0, hex(seek_index.num))
 
     update_previews()
+    render()
 
 def update_index_frame_from_entry(event):
     if int(seek_entry.get()[2:], 16) > -1:    seek_index.hex_to_int(seek_entry.get())
 
     update_previews()
+    render()
 
 def open_sheet():
-    global sheet, seek_index, has_mask, mask_sheet
-    mask_sheet = sheet_handler('')
-    has_mask = False
+    global sheet, seek_index, mask_sheet
 
     opened_file = filedialog.askopenfilename()
     try:
@@ -182,60 +307,48 @@ def open_sheet():
         messagebox.showwarning('Warning', 'No sheet opened.')
         return
     
+    mask_sheet = sheet_handler('')
+    mask_check.state(('disabled', '!selected'))
+
     seek_index.num = 0
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
-    preview_image.grid(row=1, column=0)
-    preview_mask.grid_remove()
-    rendered_image.grid(row=1, column=1, rowspan=3, sticky='nw')
-
     for widg in picture_widgets:    widg.state(('!disabled',))
 
     update_index_frame_from_entry(None)
+    update_previews()
     render()
 
 def open_mask():
-    global mask_sheet, seek_index, has_mask
+    global mask_sheet, seek_index
     opened_file = filedialog.askopenfilename()
     try:
         mask_sheet = sheet_handler(Image.open(opened_file))
     except:
         messagebox.showwarning('Warning', 'No sheet opened.')
         return
-    has_mask = True
 
     seek_index.num = 0
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
-    preview_mask.grid(row=3, column=0)
-    rendered_image.grid(row=1, column=1, rowspan=3, sticky='nw')
-
     for widg in picture_widgets:    widg.state(('!disabled',))
+    mask_check.state(('!disabled',))
 
     update_index_frame_from_entry(None)
     render()
 
 def close_sheets():
-    global has_mask
     try:
-        has_mask = False
+        mask_check.state(('disabled', '!selected'))
+        for widg in picture_widgets:    widg.state(('disabled',))
         sheet.close_sheet()
         mask_sheet.close_sheet()
-        preview_mask.grid_remove()
     except:
-        gif_timer.stop()
+        pass
 
-def update_size(new_size):
-    global size
-    size = sizes[new_size]
-
-    seek_index.num = 0
-    seek_entry.delete(0, END)
-    seek_entry.insert(0, hex(seek_index.num))
-
-    update_previews()
+    gif_timer.stop()
 
 def bg_color_chooser():
     global bg_color_image, bg_color_label
@@ -245,42 +358,9 @@ def bg_color_chooser():
     bg_color_image = ImageTk.PhotoImage(Image.new('RGB', (20, 20), bg_var.get()))
     bg_color_label.config(image=bg_color_image)
 
-def mask_clothing_chooser():
-    global mask_clothing_image, mask_clothing_label
-    if (new_color := colorchooser.askcolor(mask_clothing_var.get())[1]) != None:
-        mask_clothing_var.set(new_color)
-
-    mask_clothing_image = ImageTk.PhotoImage(Image.new('RGB', (20, 20), mask_clothing_var.get()))
-    mask_clothing_label.config(image=mask_clothing_image)
-
-def mask_accessory_chooser():
-    global mask_accessory_image, mask_accessory_label
-    if (new_color := colorchooser.askcolor(mask_accessory_var.get())[1]) != None:
-        mask_accessory_var.set(new_color)
-
-    mask_accessory_image = ImageTk.PhotoImage(Image.new('RGB', (20, 20), mask_accessory_var.get()))
-    mask_accessory_label.config(image=mask_accessory_image)
-
 def update_mode(new_mode):
-    global columnspan, rowspan, mode
-    if modes[new_mode][0] == 'png':
-        mode = 0
-        rowspan = 0
-        columnspan = 0
-    elif modes[new_mode][0] == 'gif':
-        mode = 1
-        rowspan = modes[new_mode][1]
-        columnspan = 6
-    elif  modes[new_mode][0] == 'ani':
-        mode = 2
-        rowspan = 0
-        columnspan = 0
-    elif  modes[new_mode][0] == 'over':
-        mode = 3
-        rowspan = 0
-        columnspan = 0
-
-    update_previews()
+    global mode
+    mode = modes[new_mode]
 
 def update_render_image():
     global rendered_display, gif_frame, too_large
@@ -337,158 +417,111 @@ def save_as_gif():
     except Exception as e:
         return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
 
-def mask_handler(image: Image) -> Image:
-    masked = image.copy()
-    x = masked.size[0]
-    inc = 0
-    for pxl in masked.getdata():
-        if pxl[3] != 0:
-            if pxl[0] != 0:
-                masked.putpixel((int(inc % x), int(inc / x)), 
-                (int(int(mask_clothing_var.get()[1:3], 16)*pxl[0]/255), int(int(mask_clothing_var.get()[3:5], 16)*pxl[0]/255), int(int(mask_clothing_var.get()[5:7], 16)*pxl[0]/255), 255))
-            if pxl[1] != 0:
-                masked.putpixel((int(inc % x), int(inc / x)), 
-                (int(int(mask_accessory_var.get()[1:3], 16)*pxl[1]/255), int(int(mask_accessory_var.get()[3:5], 16)*pxl[1]/255), int(int(mask_accessory_var.get()[5:7], 16)*pxl[1]/255), 255))
-        inc+= 1
-    return masked
-
 #rendering functions
 def render():
+    global x, y
+    try:
+        x = int(width_entry.get())
+        y = int(height_entry.get())
+    except:
+        messagebox.showerror('Error', 'Invalid width/height.')
+
     try:
         gif_timer.stop()
-        if mode == 1:    render_gif(modes[mode_var.get()][1])
-        elif mode == 2:    render_animation(animation_length_entry.get())
-        elif mode == 3:    render_overview(modes[mode_var.get()][1])
+        if mode[0] == 'gif':    render_gif(modes[mode_var.get()][1])
+        elif mode[0] == 'ani':    render_animation(animation_length_entry.get())
+        elif mode[0] == 'over':    render_overview(modes[mode_var.get()][1])
         else:    render_image()
     except Exception as e:
         messagebox.showerror('Error', 'Rendering error: ' + str(e))
 
+    update_previews()
     update_render_image()
 
 def render_image():
     global rendered
-    if not has_mask:
+    scale = int(scale_entry.get())
+    if not 'selected' in mask_check.state():
         rendered_images.clear()
 
-        rendered = image_handler(sheet.get_image(seek_index.num, size, columnspan=columnspan))
-        rendered = rendered.render(int(scale_entry.get()), size)
+        rendered = image_handler(sheet.get_image(seek_index.num, x, y))
+        rendered = rendered.render(scale)
 
         rendered_images.append(rendered)
     else:
         rendered_images.clear()
 
-        start_image = sheet.get_image(seek_index.num, size, columnspan=columnspan)
-        mask = mask_handler(mask_sheet.get_image(seek_index.num, size, columnspan=columnspan))
-        start_image.alpha_composite(mask)
-
-        start_image = image_handler(start_image)
-        rendered = start_image.render(int(scale_entry.get()), size)
+        start_image = image_handler(sheet.get_image(seek_index.num, x, y), mask=mask_sheet.get_image(seek_index.num, x, y))
+        rendered = start_image.render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
 
         rendered_images.append(rendered)
 
 def render_gif(rows):
     global rendered_images, frames
     rendered_images.clear()
-    rows+= 1
     scale = int(scale_entry.get())
-    gif_base = Image.new('RGBA', (4*(size+2)*scale, rows*(size+2)*scale), bg_var.get())
+    gif_base = Image.new('RGBA', (4 * (x + 2) * scale, rows * (y + 2) * scale), bg_var.get())
     gif_images = [gif_base.copy()] + [gif_base.copy()]
-    sheet_sample = sheet.get_image(seek_index.num, size, columnspan=columnspan)
+    sheet_sample = sheet.get_image(seek_index.num, x * 7, y * rows)
 
-    if not has_mask:
+    if not 'selected' in mask_check.state():
         for row in range(rows):
             second_walk = False
 
             #still frame
-            still_image = image_handler(sheet_sample.crop((0*size, row*size, 0*size+size, row*size+size))).render(scale, size)
-            gif_images[0].alpha_composite(still_image, (0*(size+2)*scale, row*(size+2)*scale))
-            gif_images[1].alpha_composite(still_image, (0*(size+2)*scale, row*(size+2)*scale))
+            still_image = image_handler(sheet_sample.crop((0 * x, row * y, 0 * x + x, row * y + y))).render(scale)
+            gif_images[0].alpha_composite(still_image, (0 * (x + 2) * scale, row * (y + 2) * scale))
+            gif_images[1].alpha_composite(still_image, (0 * (x + 2) * scale, row * (y + 2) * scale))
 
             #first walk frame
-            walk_one = image_handler(sheet_sample.crop((1*size, row*size, 1*size+size, row*size+size))).render(scale, size)
-            gif_images[0].alpha_composite(walk_one, (1*(size+2)*scale, row*(size+2)*scale))
+            walk_one = image_handler(sheet_sample.crop((1 * x, row * y, 1 * x + x, row * y + y))).render(scale)
+            gif_images[0].alpha_composite(walk_one, (1 * (x + 2) * scale, row * (y + 2) * scale))
 
             #second walk frame (check if exists as well)
-            walk_two = image_handler(sheet_sample.crop((2*size, row*size, 2*size+size, row*size+size)))
+            walk_two = image_handler(sheet_sample.crop((2 * x, row * y, 2 * x + x, row * y + y)))
             for i in walk_two.image.convert('RGBA').getdata():
                 if i[3] != 0:    second_walk = True
-            walk_two = walk_two.render(scale, size)
-            if second_walk:    gif_images[1].alpha_composite(walk_two, (1*(size+2)*scale, row*(size+2)*scale))
-            else:    gif_images[1].alpha_composite(walk_one, (1*(size+2)*scale, row*(size+2)*scale))
+            walk_two = walk_two.render(scale)
+            if second_walk:    gif_images[1].alpha_composite(walk_two, (1 * (x + 2) * scale, row * (y + 2) * scale))
+            else:    gif_images[1].alpha_composite(walk_one, (1 * (x + 2) * scale, row * (y + 2) * scale))
 
             #first attack frame
-            attack_one = image_handler(sheet_sample.crop((4*size, row*size, 4*size+size, row*size+size))).render(scale, size)
-            gif_images[0].alpha_composite(attack_one, (2*(size+2)*scale, row*(size+2)*scale))
+            attack_one = image_handler(sheet_sample.crop((4 * x, row * y, 4 * x + x, row * y + y))).render(scale)
+            gif_images[0].alpha_composite(attack_one, (2 * (x + 2) * scale, row * (y + 2) * scale))
 
             #final attack frame
-            attack_combo = Image.new('RGBA', (2*size, size), (0, 0, 0, 0))
-            attack_two_one = sheet_sample.crop((5*size, row*size, 5*size+size, row*size+size))
-            attack_combo.alpha_composite(attack_two_one, (0*size, 0))
-            attack_two_two = sheet_sample.crop((6*size, row*size, 6*size+size, row*size+size))
-            attack_combo.alpha_composite(attack_two_two, (1*size, 0))
-            attack_combo = image_handler(attack_combo).render(scale, size)
-            gif_images[1].alpha_composite(attack_combo, (2*(size+2)*scale, row*(size+2)*scale))
+            attack_two = image_handler(sheet_sample.crop((5 * x, row * y, 6 * x + x, row * y + y))).render(scale)
+            gif_images[1].alpha_composite(attack_two, (2 * (x + 2) * scale, row * (y + 2) * scale))
 
     else:
-        mask_sample = mask_sheet.get_image(seek_index.num, size, columnspan=columnspan)
+        mask_sample = mask_sheet.get_image(seek_index.num, x * 7, y * rows)
         for row in range(rows):
             second_walk = False
 
             #still frame
-            still_initial = sheet_sample.crop((0*size, row*size, 0*size+size, row*size+size))
-            still_mask = mask_handler(mask_sample.crop((0*size, row*size, 0*size+size, row*size+size)))
-            still_initial.alpha_composite(still_mask, (0, 0))
-
-            still_image = image_handler(still_initial).render(scale, size)
-            gif_images[0].alpha_composite(still_image, (0*(size+2)*scale, row*(size+2)*scale))
-            gif_images[1].alpha_composite(still_image, (0*(size+2)*scale, row*(size+2)*scale))
+            still_image = image_handler(sheet_sample.crop((0 * x, row * y, 0 * x + x, row * y + y)), mask=mask_sample.crop((0 * x, row * y, 0 * x + x, row * y + y))).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            gif_images[0].alpha_composite(still_image, (0 * (x + 2) * scale, row * (y + 2) * scale))
+            gif_images[1].alpha_composite(still_image, (0 * (x + 2) * scale, row * (y + 2) * scale))
 
             #first walk frame
-            walk_one_initial = sheet_sample.crop((1*size, row*size, 1*size+size, row*size+size))
-            walk_one_mask = mask_handler(mask_sample.crop((1*size, row*size, 1*size+size, row*size+size)))
-            walk_one_initial.alpha_composite(walk_one_mask, (0, 0))
-
-            walk_one = image_handler(walk_one_initial).render(scale, size)
-            gif_images[0].alpha_composite(walk_one, (1*(size+2)*scale, row*(size+2)*scale))
+            walk_one = image_handler(sheet_sample.crop((1 * x, row * y, 1 * x + x, row * y + y)), mask=mask_sample.crop((1 * x, row * y, 1 * x + x, row * y + y))).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            gif_images[0].alpha_composite(walk_one, (1 * (x + 2) * scale, row * (y + 2) * scale))
 
             #second walk frame (check if exists as well)
-            walk_two_initial = sheet_sample.crop((2*size, row*size, 2*size+size, row*size+size))
-            walk_two_mask = mask_handler(mask_sample.crop((2*size, row*size, 2*size+size, row*size+size)))
-            walk_two_initial.alpha_composite(walk_two_mask, (0, 0))
-
-            walk_two = image_handler(walk_two_initial)
+            walk_two = image_handler(sheet_sample.crop((2 * x, row * y, 2 * x + x, row * y + y)), mask=mask_sample.crop((2 * x, row * y, 2 * x + x, row * y + y)))
             for i in walk_two.image.convert('RGBA').getdata():
                 if i[3] != 0:    second_walk = True
-            walk_two = walk_two.render(scale, size)
-            if second_walk:    gif_images[1].alpha_composite(walk_two, (1*(size+2)*scale, row*(size+2)*scale))
-            else:    gif_images[1].alpha_composite(walk_one, (1*(size+2)*scale, row*(size+2)*scale))
+            walk_two = walk_two.render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            if second_walk:    gif_images[1].alpha_composite(walk_two, (1 * (x + 2) * scale, row * (y + 2) * scale))
+            else:    gif_images[1].alpha_composite(walk_one, (1 * (x + 2) * scale, row * (y + 2) * scale))
 
             #first attack frame
-            attack_one_initial = sheet_sample.crop((4*size, row*size, 4*size+size, row*size+size))
-            attack_one_mask = mask_handler(mask_sample.crop((4*size, row*size, 4*size+size, row*size+size)))
-            attack_one_initial.alpha_composite(attack_one_mask, (0, 0))
-
-            attack_one = image_handler(attack_one_initial).render(scale, size)
-            gif_images[0].alpha_composite(attack_one, (2*(size+2)*scale, row*(size+2)*scale))
+            attack_one = image_handler(sheet_sample.crop((4 * x, row * y, 4 * x + x, row * y + y)), mask=mask_sample.crop((4 * x, row * y, 4 * x + x, row * y + y))).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            gif_images[0].alpha_composite(attack_one, (2 * (x + 2) * scale, row * (y + 2) * scale))
 
             #final attack frame
-            attack_combo = Image.new('RGBA', (2*size, size), (0, 0, 0, 0))
-
-            attack_two_one_initial = sheet_sample.crop((5*size, row*size, 5*size+size, row*size+size))
-            attack_two_one_mask = mask_handler(mask_sample.crop((5*size, row*size, 5*size+size, row*size+size)))
-            attack_two_one_initial.alpha_composite(attack_two_one_mask, (0*size, 0))
-
-            attack_combo.alpha_composite(attack_two_one_initial, (0*size, 0))
-
-            attack_two_two_initial = sheet_sample.crop((6*size, row*size, 6*size+size, row*size+size))
-            attack_two_two_mask = mask_handler(mask_sample.crop((6*size, row*size, 6*size+size, row*size+size)))
-            attack_two_two_initial.alpha_composite(attack_two_two_mask, (1*size, 0))
-
-            attack_combo.alpha_composite(attack_two_two_initial, (1*size, 0))
-
-            attack_combo = image_handler(attack_combo).render(scale, size)
-
-            gif_images[1].alpha_composite(attack_combo, (2*(size+2)*scale, row*(size+2)*scale))
+            attack_two = image_handler(sheet_sample.crop((5 * x, row * y, 6 * x + x, row * y + y)), mask=mask_sample.crop((5 * x, row * y, 6 * x + x, row * y + y))).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            gif_images[1].alpha_composite(attack_two, (2 * (x + 2) * scale, row * (y + 2) * scale))
 
     rendered_images = gif_images.copy()
     frames = []
@@ -502,7 +535,7 @@ def render_gif(rows):
 
         frames.append(imread(buffer.getvalue(), format='PNG-PIL'))
         frame+= 1
-    
+
 def render_animation(length):
     global rendered_images, frames
     rendered_images.clear()
@@ -512,23 +545,19 @@ def render_animation(length):
     animation_frames, frames = [], []
 
     if length == 0:
-        length = int(sheet.sheet_size()[0]/size) * int(sheet.sheet_size()[1]/size)
+        length = int(sheet.sheet_size()[0] / x) * int(sheet.sheet_size()[1] / y)
     
-    animation_base = Image.new('RGBA', ((size+2)*scale, (size+2)*scale), bg_var.get())
+    animation_base = Image.new('RGBA', ((x + 2) * scale, (y + 2) * scale), bg_var.get())
     for garb in range(length):
         animation_frames.append(animation_base.copy())
 
-    if not has_mask:
+    if not 'selected' in mask_check.state():
         for i in range(len(animation_frames)):
-            frame_image = image_handler(sheet.get_image(start_index+i, size, columnspan=0))
-            animation_frames[i].alpha_composite(frame_image.render(scale, size), (0, 0))
+            frame_image = image_handler(sheet.get_image(start_index + i, x, y)).render(scale)
+            animation_frames[i].alpha_composite(frame_image, (0, 0))
     else:
         for i in range(len(animation_frames)):
-            frame_initial = sheet.get_image(start_index+i, size, columnspan=0)
-            frame_mask = mask_handler(mask_sheet.get_image(start_index+i, size, columnspan=0))
-            frame_initial.alpha_composite(frame_mask, (0, 0))
-
-            frame_image = image_handler(frame_initial).render(scale, size)
+            frame_image = image_handler(sheet.get_image(start_index + i, x, y), mask=mask_sheet.get_image(start_index + i, x, y)).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
             animation_frames[i].alpha_composite(frame_image, (0, 0))
 
     rendered_images = animation_frames.copy()
@@ -547,11 +576,11 @@ def render_overview(skip):
     global rendered_images
     rendered_images.clear()
     scale = int(scale_entry.get())
-    rows = int(sheet.sheet_size()[1]/size)
+    rows = int(sheet.sheet_size()[1]/y)
 
     nonempty_rows = []
     for i in range(rows):
-        for pxl in sheet.get_image(i*(sheet.sheet_size()[0]/size), size, columnspan=0).convert('RGBA').getdata():
+        for pxl in sheet.get_image(i * (sheet.sheet_size()[0] / x), x, y).convert('RGBA').getdata():
             if pxl[3] != 0:
                 nonempty_rows.append(i)
                 break
@@ -559,16 +588,16 @@ def render_overview(skip):
     maxcolumns = 6
     if len(nonempty_rows) < 6:    maxcolumns = len(nonempty_rows)
 
-    image_base = Image.new('RGBA', ((size+2)*scale*maxcolumns, ceil(len(nonempty_rows)/maxcolumns/skip)*(size+2)*scale))
+    image_base = Image.new('RGBA', ((x + 2) * scale * maxcolumns, ceil(len(nonempty_rows) / maxcolumns / skip) * (y + 2) * scale))
 
     if skip != 1:
         nonempty_rows = nonempty_rows[::3]
 
     row, column = 0, 0
-    if not has_mask:
+    if not 'selected' in mask_check.state():
         for i in range(len(nonempty_rows)):
-            next_image = image_handler(sheet.get_image(nonempty_rows[i]*(sheet.sheet_size()[0]/size), size, columnspan=0)).render(scale, size)
-            image_base.alpha_composite(next_image, ((size+2)*scale*column, (size+2)*scale*row))
+            next_image = image_handler(sheet.get_image(nonempty_rows[i] * (sheet.sheet_size()[0] / x), x, y)).render(scale)
+            image_base.alpha_composite(next_image, ((x + 2) * scale * column, (y + 2) * scale * row))
 
             if column == 5:
                 column = 0
@@ -577,12 +606,8 @@ def render_overview(skip):
                 column+= 1
     else:
         for i in range(len(nonempty_rows)):
-            inital_image = sheet.get_image(nonempty_rows[i]*(sheet.sheet_size()[0]/size), size, columnspan=0)
-            mask = mask_handler(mask_sheet.get_image(nonempty_rows[i]*(sheet.sheet_size()[0]/size), size, columnspan=0))
-            inital_image.alpha_composite(mask, (0, 0))
-
-            next_image = image_handler(inital_image).render(scale, size)
-            image_base.alpha_composite(next_image, ((size+2)*scale*column, (size+2)*scale*row))
+            next_image = image_handler(sheet.get_image(nonempty_rows[i] * (sheet.sheet_size()[0] / x), x, y), mask=mask_sheet.get_image(nonempty_rows[i] * (sheet.sheet_size()[0] / x), x, y)).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            image_base.alpha_composite(next_image, ((x + 2) * scale * column, (y + 2) * scale * row))
 
             if column == 5:
                 column = 0
@@ -593,35 +618,32 @@ def render_overview(skip):
     rendered_images.append(image_base)
 
 def render_whole():
-    global rendered_images, too_large
-    if modes[mode_var.get()][0] != 'png':    return messagebox.showerror('Error', 'Must be in image mode to render whole sheet.')
+    global rendered_images, too_large, mode
+    mode = ('png',)
+    mode_var.set('Image Mode')
 
     rendered_images.clear()
     rendered_image.delete('all')
     scale = int(scale_entry.get())
 
-    whole_sheet_render = Image.new('RGBA', (int(sheet.sheet_size()[0]/size)*(size+2)*scale, int(sheet.sheet_size()[1]/size)*(size+2)*scale), (0, 0, 0, 0))
-    sheet_length = int(sheet.sheet_size()[0]/size) * int(sheet.sheet_size()[1]/size)
+    whole_sheet_render = Image.new('RGBA', (int(sheet.sheet_size()[0] / x) * (x + 2)*scale, int(sheet.sheet_size()[1] / y) * (y + 2) * scale), (0, 0, 0, 0))
+    sheet_length = int(sheet.sheet_size()[0] / x) * int(sheet.sheet_size()[1] / y)
     sheet_width = int(sheet.sheet_size()[0])
 
-    if not has_mask:
+    if not 'selected' in mask_check.state():
         for i in range(sheet_length):
-            row = int(i % (sheet_width/size))
-            column = floor(i / (sheet_width/size))
+            row = int(i % (sheet_width / x))
+            column = floor(i / (sheet_width / x))
 
-            next_image = image_handler(sheet.get_image(i, size, columnspan=0)).render(scale, size)
-            whole_sheet_render.alpha_composite(next_image, ((size+2)*scale*row, (size+2)*scale*column))
+            next_image = image_handler(sheet.get_image(i, x, y)).render(scale)
+            whole_sheet_render.alpha_composite(next_image, ((x + 2) * scale * row, (y + 2) * scale * column))
     else:
         for i in range(sheet_length-1):
-            row = int(i % (sheet_width/size))
-            column = floor(i / (sheet_width/size))
+            row = int(i % (sheet_width / x))
+            column = floor(i / (sheet_width / x))
 
-            initial_image = sheet.get_image(i, size, columnspan=0)
-            mask = mask_handler(mask_sheet.get_image(i, size, columnspan=0))
-            initial_image.alpha_composite(mask, (0, 0))
-
-            next_image = image_handler(initial_image).render(scale, size)
-            whole_sheet_render.alpha_composite(next_image, ((size+2)*scale*row, (size+2)*scale*column))
+            next_image = image_handler(sheet.get_image(i, x, y), mask=mask_sheet.get_image(i, x, y)).render_mask(scale, mask_clothing_handler.image, mask_accessory_handler.image)
+            whole_sheet_render.alpha_composite(next_image, ((x + 2) * scale * row, (y + 2) * scale * column))
 
     rendered_images.append(whole_sheet_render)
     update_render_image()
@@ -635,17 +657,15 @@ if __name__ == '__main__':
     width = window.winfo_screenwidth()
     height = window.winfo_screenheight()
 
-    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6296))) #1650x680 on 1080p
+    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6))) #1650x648 on 1080p
 
     #vars
     sheet = sheet_handler('')
     mask_sheet = sheet_handler('')
-    sizes = {'8x8': 8, '16x16': 16, '32x32': 32, '64x64': 64}
-    modes = {'Image Mode': ('png',), 'Pet or Enemy Mode': ('gif', 0), 'Player Skin Mode': ('gif', 2), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Skin Overview': ('over', 3)}
-    mode = 0
-    size, columnspan, rowspan = 8, 0, 0
+    modes = {'Image Mode': ('png',), 'Pet or Enemy Mode': ('gif', 1), 'Player Skin Mode': ('gif', 3), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Overview': ('over', 3)}
+    mode = ('png',)
     rendered_images, picture_widgets = [], set()
-    has_mask = False
+    x, y = 8, 8
 
     ##################################################################################################################################
     #style options
@@ -682,6 +702,7 @@ if __name__ == '__main__':
     style.map('TButton', background=[('active', '#292b2f')])
     style.map('TMenubutton', background=[('disabled', '#36393e'), ('active', '#292b2f')])
     style.map('TLabel', background=[('disabled', '#36393e')])
+    style.map('TCheckbutton', background=[('disabled', '#36393e')])
 
     ##################################################################################################################################
     #sidebar
@@ -703,13 +724,17 @@ if __name__ == '__main__':
     #clear sheet
     clear_sheet_button = Button(sheet_buttons, text='Clear Sheet', command=close_sheets)
     clear_sheet_button.grid(row=2, column=0, sticky='we')
+    picture_widgets.add(clear_sheet_button)
 
     ##################################################################################################################################
-    #seeking
+    #seeking, size, mask toggle (et al as in and others)
     seek_index = index(0)
-    index_frame = Frame(sidebar)
 
-    seek_up = Button(index_frame, text='🡅', command=lambda: update_index_frame_from_button(-ceil(sheet.sheet_size()[0]/size)), style='seek.TButton')
+    seek_et_al_frame = Frame(sidebar)
+
+    index_frame = Frame(seek_et_al_frame)
+
+    seek_up = Button(index_frame, text='🡅', command=lambda: update_index_frame_from_button(-ceil(sheet.sheet_size()[0] / x)), style='seek.TButton')
     seek_up.grid(row=0, column=1)
     picture_widgets.add(seek_up)
 
@@ -727,9 +752,45 @@ if __name__ == '__main__':
     seek_right.grid(row=1, column=2)
     picture_widgets.add(seek_right)
 
-    seek_down = Button(index_frame, text='🡇', command=lambda: update_index_frame_from_button(ceil(sheet.sheet_size()[0]/size)), style='seek.TButton')
+    seek_down = Button(index_frame, text='🡇', command=lambda: update_index_frame_from_button(ceil(sheet.sheet_size()[0] / x)), style='seek.TButton')
     seek_down.grid(row=2, column=1)
     picture_widgets.add(seek_down)
+
+    index_frame.grid(row=0, column=0, padx=int(height/54)) #20 on 1080p
+
+    et_al_frame = Frame(seek_et_al_frame)
+
+    width_entry = Entry(et_al_frame, width=10, justify='center')
+    width_entry.insert(0, '8')
+    width_entry.grid(row=0, column=0)
+    picture_widgets.add(width_entry)
+
+    width_label = Label(et_al_frame, text='Width')
+    width_label.grid(row=0, column=1, sticky='w')
+    picture_widgets.add(width_label)
+
+    height_entry = Entry(et_al_frame, width=10, justify='center')
+    height_entry.insert(0, '8')
+    height_entry.grid(row=1, column=0)
+    picture_widgets.add(height_entry)
+
+    height_label = Label(et_al_frame, text='Height')
+    height_label.grid(row=1, column=1, sticky='w')
+    picture_widgets.add(height_label)
+
+    check_size_spacer = Frame(et_al_frame)
+    check_size_spacer.grid(row=2, column=0, columnspan=2, ipady=5)
+
+    mask_check = Checkbutton(et_al_frame, text='Render Mask', command=render)
+    mask_check.state(('disabled',))
+    mask_check.grid(row=3, column=0, columnspan=2, sticky='w')
+
+    shadow_check = Checkbutton(et_al_frame, text='Render Shadows', command=render)
+    shadow_check.state(('selected',))
+    shadow_check.grid(row=4, column=0, columnspan=2, sticky='w')
+    picture_widgets.add(shadow_check)
+
+    et_al_frame.grid(row=0, column=1, padx=int(height/54)) #20 on 1080p
 
     ##################################################################################################################################
     #entries
@@ -807,51 +868,47 @@ if __name__ == '__main__':
     #mask clothing
     mask_clothing_frame = Frame(mask_colors)
 
-    mask_clothing_var = StringVar(window, '#ff0000')
-
-    mask_clothing_image = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), mask_clothing_var.get())) #20x20 on 1080p
-    mask_clothing_label = Label(mask_clothing_frame, image=mask_clothing_image)
+    mask_clothing_preview = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), '#ff0000')) #20x20 on 1080p
+    mask_clothing_label = Label(mask_clothing_frame, image=mask_clothing_preview)
     mask_clothing_label.grid(row=0, column=0, sticky='e')
     picture_widgets.add(mask_clothing_label)
 
-    bg_picker = Button(mask_clothing_frame, text='Choose Clothing (Mask)', command=mask_clothing_chooser)
-    bg_picker.grid(row=0, column=1, sticky='we')
-    picture_widgets.add(bg_picker)
+    mask_clothing_image = Image.new('RGB', (int(height/54), int(height/54)), '#ff0000')
+    mask_clothing_handler = color_picker(mask_clothing_image, mask_clothing_label, 'Mask Clothing Color')
+
+    mask_clothing_picker = Button(mask_clothing_frame, text='Choose Clothing (Mask)', command=mask_clothing_handler.generate)
+    mask_clothing_picker.grid(row=0, column=1, sticky='we')
+    picture_widgets.add(mask_clothing_picker)
 
     mask_clothing_frame.grid(row=0, column=0)
     
     #mask accessory
     mask_accessory_frame = Frame(mask_colors)
 
-    mask_accessory_var = StringVar(window, '#00ff00')
-
-    mask_accessory_image = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), mask_accessory_var.get())) #20x20 on 1080p
-    mask_accessory_label = Label(mask_accessory_frame, image=mask_accessory_image)
+    mask_accessory_preview = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')) #20x20 on 1080p
+    mask_accessory_label = Label(mask_accessory_frame, image=mask_accessory_preview)
     mask_accessory_label.grid(row=0, column=0, sticky='e')
     picture_widgets.add(mask_accessory_label)
 
-    mask_accessory_picker = Button(mask_accessory_frame, text='Choose Accessory (Mask)', command=mask_accessory_chooser)
+    mask_accessory_image = Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')
+    mask_accessory_handler = color_picker(mask_accessory_image, mask_accessory_label, 'Mask Clothing Color')
+
+    mask_accessory_picker = Button(mask_accessory_frame, text='Choose Clothing (Mask)', command=mask_accessory_handler.generate)
     mask_accessory_picker.grid(row=0, column=1, sticky='we')
     picture_widgets.add(mask_accessory_picker)
 
     mask_accessory_frame.grid(row=1, column=0)
-    
+
     mask_colors.grid(row=1, column=0, sticky='we')
 
     ##################################################################################################################################
     #option menus
     option_menus_frame = Frame(sidebar)
 
-    #size options
-    size_list = OptionMenu(option_menus_frame, (size_var := StringVar(window, '8x8')), None, *sizes.keys(), command=update_size)
-    size_list['menu'].configure(bg='#36393e', fg='#d6d7d8')
-    size_list.grid(row=0, column=0, sticky='we')
-    picture_widgets.add(size_list)
-
     #mode option
     mode_list = OptionMenu(option_menus_frame, (mode_var := StringVar(window, 'Image Mode')), None, *modes.keys(), command=update_mode)
     mode_list['menu'].configure(bg='#36393e', fg='#d6d7d8')
-    mode_list.grid(row=1,column=0, sticky='we')
+    mode_list.grid(row=0,column=0, sticky='we')
     picture_widgets.add(mode_list)
 
     ##################################################################################################################################
@@ -880,13 +937,13 @@ if __name__ == '__main__':
 
     ##################################################################################################################################
     #separator
-    separator_two = Frame(sidebar, style='separator.TFrame')
-    separator_two.grid(row=0, column=1, rowspan=6, sticky='ns', ipadx=1, padx=int(height/54))
+    separator_one = Frame(sidebar, style='separator.TFrame')
+    separator_one.grid(row=0, column=1, rowspan=6, sticky='ns', ipadx=1, padx=int(height/54))
 
     ##################################################################################################################################
     #sidebar grid
     sheet_buttons.grid(row=0, column=0)
-    index_frame.grid(row=1, column=0, pady=int(height/54)) #20 on 1080p
+    seek_et_al_frame.grid(row=1, column=0, pady=int(height/54)) #20 on 1080p
     entries_frame.grid(row=2, column=0)
     color_pickers_frame.grid(row=3, column=0, pady=int(height/54)) #20 on 1080p
     option_menus_frame.grid(row=4, column=0)
@@ -901,22 +958,30 @@ if __name__ == '__main__':
     preview_label = Label(main_content, text='Preview:')
     preview_label.grid(row=0, column=0, sticky='nw', pady=int(height/108)) #10 on 1080p
 
-    preview_image = Label(main_content)
-    preview_image.grid(row=1, column=0, sticky='nw')
+    preview_image_label = Label(main_content)
+    preview_image_label.grid(row=1, column=0, sticky='nw')
+
+    preview_sheet_sample = preview_image(preview_image_label)
 
     #mask preview
     preview_mask_label = Label(main_content, text='Mask:')
     preview_mask_label.grid(row=2, column=0, sticky='nw', pady=int(height/108)) #10 on 1080p
 
-    preview_mask = Label(main_content)
-    preview_mask.grid(row=3, column=0, sticky='nw')
+    preview_mask_image_label = Label(main_content)
+    preview_mask_image_label.grid(row=3, column=0, sticky='nw')
+
+    preview_mask_sample = preview_image(preview_mask_image_label)
+
+    #separator
+    separator_two = Frame(main_content, style='separator.TFrame')
+    separator_two.grid(row=0, column=1, rowspan=4, sticky='ns', ipadx=1, padx=int(height/43.2)) #25 on 1080p
 
     #rendered
     rendered_label = Label(main_content, text='Rendered:')
-    rendered_label.grid(row=0, column=1, sticky='nw', pady=int(height/108)) #10 on 1080p
+    rendered_label.grid(row=0, column=2, sticky='nw', pady=int(height/108)) #10 on 1080p
 
     rendered_image = Canvas(main_content, height=0, width=0, relief=FLAT, background='#36393e', highlightthickness=0)
-    rendered_image.grid(row=1, column=1, rowspan=3, sticky='nw')
+    rendered_image.grid(row=1, column=2, rowspan=3, sticky='nw')
 
     main_content.grid(row=0, column=1, sticky='nw')
 

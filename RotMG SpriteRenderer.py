@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from tkinter import filedialog, colorchooser, messagebox, font
+from tkinter import filedialog, colorchooser, messagebox, font, PhotoImage
 from PIL import Image, ImageFilter, ImageTk, ImageDraw
 from math import ceil, floor
 from threading import Timer
@@ -85,25 +85,27 @@ class image_handler:
     
     def render_mask(self, scale: int, clothing_texture: Image, accessory_texture: Image) -> Image:
         #initial render to paste onto
-        base = self.render(4)
+        base = self.render(5)
 
         #size grabbing
         base_x, base_y = base.size
         x, y = self.image.size
 
         #creating a texture image to cut from (clothing)
+        clothing_texture = clothing_texture.convert('RGBA')
         clothing_texture_size = clothing_texture.size[0]
         clothing_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
-        for i in range(4, base_x, clothing_texture_size):
-            for j in range(4, base_y, clothing_texture_size):
-                clothing_texture_filled.paste(clothing_texture, (i, base_y - j - clothing_texture_size))
+        for i in range(5, base_x, clothing_texture_size):
+            for j in range(5, base_y, clothing_texture_size):
+                clothing_texture_filled.alpha_composite(clothing_texture, (i, base_y - j - clothing_texture_size))
 
         #creating a texture image to cut from (accessory)
+        accessory_texture = accessory_texture.convert('RGBA')
         accessory_texture_size = accessory_texture.size[0]
         accessory_texture_filled = Image.new('RGBA', (base_x, base_y), (0, 0, 0, 0))
-        for i in range(4, base_x, accessory_texture_size):
-            for j in range(4, base_y, accessory_texture_size):
-                accessory_texture_filled.paste(accessory_texture, (i, base_y - j - accessory_texture_size))
+        for i in range(5, base_x, accessory_texture_size):
+            for j in range(5, base_y, accessory_texture_size):
+                accessory_texture_filled.alpha_composite(accessory_texture, (i, base_y - j - accessory_texture_size))
 
         #reading mask, saving intensity and position of red and green pixels
         inc = 0
@@ -117,22 +119,22 @@ class image_handler:
 
         #according to previous step, cut from texture image to paste onto base image, then paste transparent layer for brightness adjust
         for i in primaries:
-            cropped = clothing_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
-            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
+            cropped = clothing_texture_filled.crop((i[1] * 5 + 5, i[2] * 5 + 5, i[1] * 5 + 2 * 5, i[2] * 5 + 2 * 5))
+            base.alpha_composite(cropped, (i[1] * 5 + 5, i[2] * 5 + 5))
 
-            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
-            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
+            obscure = Image.new('RGBA', (5, 5), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 5 + 5, i[2] * 5 + 5))
 
         for i in secondaries:
-            cropped = accessory_texture_filled.crop((i[1] * 4 + 4, i[2] * 4 + 4, i[1] * 4 + 2 * 4, i[2] * 4 + 2 * 4))
-            base.alpha_composite(cropped, (i[1] * 4 + 4, i[2] * 4 + 4))
+            cropped = accessory_texture_filled.crop((i[1] * 5 + 5, i[2] * 5 + 5, i[1] * 5 + 2 * 5, i[2] * 5 + 2 * 5))
+            base.alpha_composite(cropped, (i[1] * 5 + 5, i[2] * 5 + 5))
 
-            obscure = Image.new('RGBA', (4, 4), (0, 0, 0, 255 - i[0]))
-            base.alpha_composite(obscure, (i[1] * 4 + 4, i[2] * 4 + 4))
+            obscure = Image.new('RGBA', (5, 5), (0, 0, 0, 255 - i[0]))
+            base.alpha_composite(obscure, (i[1] * 5 + 5, i[2] * 5 + 5))
 
         #create shadow
         silhouette = self.silhouette().resize((x * scale, y * scale), resample=Image.BOX)
-        bg = Image.new('RGBA', (int(base_x * (scale / 4)), int(base_y * (scale / 4))), (0, 0, 0, 0))
+        bg = Image.new('RGBA', (int(base_x * (scale / 5)), int(base_y * (scale / 5))), (0, 0, 0, 0))
 
         if 'selected' in shadow_check.state():
             bg.alpha_composite(silhouette, (scale, scale))
@@ -143,7 +145,7 @@ class image_handler:
             for j in (-1, 1):    bg.alpha_composite(silhouette, (scale+i, scale+j))
 
         #drop resized base onto shadow
-        base = base.resize((int(base_x * (scale / 4)), int(base_y * (scale / 4))), resample=Image.BOX)
+        base = base.resize((int(base_x * (scale / 5)), int(base_y * (scale / 5))), resample=Image.BOX)
         bg.alpha_composite(base, (0, 0))
 
         return bg
@@ -189,7 +191,7 @@ class preview_image:
         self.label = label
     
     def update_image(self, image: Image):
-        sized_image = image.convert('RGBA').resize((int(image.size[0]*75/x), int(image.size[1]*75/y)), resample = Image.BOX) #size is 75 times the size divided by size (size is constant while keeping image dimensions)
+        sized_image = image.convert('RGBA').resize((int(image.size[0]*50/x), int(image.size[1]*50/y)), resample = Image.BOX) #size is 50 times the size divided by size (size is constant while keeping image dimensions)
         photo_image = ImageTk.PhotoImage(sized_image)
 
         self.label.config(image=photo_image)
@@ -215,23 +217,29 @@ class color_picker:
         self.display_image_one = display_image_one
         self.display_image_two = display_image_two
 
+        render()
+
     def choose_color(self):
         if (new_color := colorchooser.askcolor('#ffffff')[1]) != None:
             self.set_image(Image.new('RGBA', (10, 10), new_color))
 
     def choose_cloth(self):
-        b64_cloths = [b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFTU1NmZmZBC4lqQAAABFJREFUeJxjCHVgWNXAgIMEAH9TCLzkBdSkAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAgMAAADwAc52AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFNQlPbBOgAwugaLCN6gAAABdJREFUeJxjkGJg8HBgWOjA0NLAIMYAABKbAp7dfVT4AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAD9QTFRFc3NzOTNHR0YvPUc6MUk4OEJHKzgwNFxwTUQXQEcvMVFgP0c7Y3ppVkodZmhzMywqZmBePU9/RztDRzdAOjQwPoOYmwAAACZJREFUeJxjYGBkYmZhYGVj5+BkYODi5uFl4ODjF2BnEBTiEBYBAAmYAOrM5quqAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFBAMAAAB/QTvWAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFWysLWzMLWyAIwZM5updm18AGKQAAABhJREFUeJxjYAACQUEBBiUlBQYTEwcQBgAL4wHnJ4dSPwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAgMAAADUn3btAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAAADx4b0MXUjUhKAAAABBJREFUeJxjEGJoYVBk8AAAA8UBAGPzOUIAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFa1szhGkfJ0VMFltmtQAA3Gvk0AAAABRJREFUeJxjYGBgEBRkUFZmcHEBAAMSAPGtRs5jAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAA999rySy9mgAAAA5JREFUeJxjYAACBQYGAABoACEO48ZHAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFb23LAAAAnCveuwAAAAxJREFUeJxjCGAAQwAFCAFBQtVWSQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAgMAAADwXCcuAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAH7T29v/ADx4AGnTEzcLwwAAACZJREFUeJxjEFtQwMC6QoDBMYsBjEFssQUODFGNDAxZLAJgDGQDAKK4B5//az36AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRF88RJ/+5Z1IY9Ym6MdI2zo73ZQkhmAKnDwgAAADNJREFUeJxjYBQEAgYhExcXIwZhF0dXZxDpAiQNGAWNGYTNEtOApLGhMYI0A5JCxsbGRgD7ZgjJpOI9/gAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABJQTFRFgi8gwRkZwVxVWSAWc3Nzt8GFcgbo6gAAAB5JREFUeJxjYGAQFFRiwCSNjRkYXFBIFxclpVBkEgCGYAZyLymKYAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAgMAAACd/+6DAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAAAAIJv/uf+z////rxwV9QAAACVJREFUeJxjYBBgYFAoYWBgEHBgAAEWDgYGWRDNCCTYHRgYGRkAH9ABbLrxs9EAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFPxgA////RFB+KztbZXqgAP//n7rMfQkbcwAAADNJREFUeJxjYBAUYGBgYFRSAJFGSiAOk4oDkGQIcUoAsllcgKQCg0oCAxMDQxoDA0gBAwBhggPsOHDfnwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAQMAAADaX5RTAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFMKTy////CGt/CgAAABtJREFUeJxjYGBgYGZgYG8AISBIYGD4AEYMDAAjMwNSwdMtOQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFAAD/lgD03h0d/64M/+oMDP9IYf/ncdl+vQAAAC5JREFUeJxjYFR2TWBgEDIJY2BgADEFGIBMRgUGIFPIgAHIVHZgADJNAhgYEEoBubgG5YKCELsAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAB4////C1IXrgAAABJJREFUeJxjMGCQYOhgOMCQAAAHqgHxkZYmYgAAAABJRU5ErkJggg==']
+        b64_cloths = [b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAF0lEQVR4nGP8//8/AzGAiShVowqpphAA1RIDEZR7aoQAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFTU1NmZmZBC4lqQAAABFJREFUeJxjCHVgWNXAgIMEAH9TCLzkBdSkAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAgMAAADwAc52AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFNQlPbBOgAwugaLCN6gAAABdJREFUeJxjkGJg8HBgWOjA0NLAIMYAABKbAp7dfVT4AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAD9QTFRFc3NzOTNHR0YvPUc6MUk4OEJHKzgwNFxwTUQXQEcvMVFgP0c7Y3ppVkodZmhzMywqZmBePU9/RztDRzdAOjQwPoOYmwAAACZJREFUeJxjYGBkYmZhYGVj5+BkYODi5uFl4ODjF2BnEBTiEBYBAAmYAOrM5quqAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFBAMAAAB/QTvWAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFWysLWzMLWyAIwZM5updm18AGKQAAABhJREFUeJxjYAACQUEBBiUlBQYTEwcQBgAL4wHnJ4dSPwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAgMAAADUn3btAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAAADx4b0MXUjUhKAAAABBJREFUeJxjEGJoYVBk8AAAA8UBAGPzOUIAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFa1szhGkfJ0VMFltmtQAA3Gvk0AAAABRJREFUeJxjYGBgEBRkUFZmcHEBAAMSAPGtRs5jAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAA999rySy9mgAAAA5JREFUeJxjYAACBQYGAABoACEO48ZHAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFb23LAAAAnCveuwAAAAxJREFUeJxjCGAAQwAFCAFBQtVWSQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAgMAAADwXCcuAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAH7T29v/ADx4AGnTEzcLwwAAACZJREFUeJxjEFtQwMC6QoDBMYsBjEFssQUODFGNDAxZLAJgDGQDAKK4B5//az36AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRF88RJ/+5Z1IY9Ym6MdI2zo73ZQkhmAKnDwgAAADNJREFUeJxjYBQEAgYhExcXIwZhF0dXZxDpAiQNGAWNGYTNEtOApLGhMYI0A5JCxsbGRgD7ZgjJpOI9/gAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABJQTFRFgi8gwRkZwVxVWSAWc3Nzt8GFcgbo6gAAAB5JREFUeJxjYGAQFFRiwCSNjRkYXFBIFxclpVBkEgCGYAZyLymKYAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAgMAAACd/+6DAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAAAAIJv/uf+z////rxwV9QAAACVJREFUeJxjYBBgYFAoYWBgEHBgAAEWDgYGWRDNCCTYHRgYGRkAH9ABbLrxs9EAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFPxgA////RFB+KztbZXqgAP//n7rMfQkbcwAAADNJREFUeJxjYBAUYGBgYFRSAJFGSiAOk4oDkGQIcUoAsllcgKQCg0oCAxMDQxoDA0gBAwBhggPsOHDfnwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAQMAAADaX5RTAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFMKTy////CGt/CgAAABtJREFUeJxjYGBgYGZgYG8AISBIYGD4AEYMDAAjMwNSwdMtOQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFAAD/lgD03h0d/64M/+oMDP9IYf/ncdl+vQAAAC5JREFUeJxjYFR2TWBgEDIJY2BgADEFGIBMRgUGIFPIgAHIVHZgADJNAhgYEEoBubgG5YKCELsAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAB4////C1IXrgAAABJJREFUeJxjMGCQYOhgOMCQAAAHqgHxkZYmYgAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFGcTqoB5qhxlZkRtg3bgjwSSAADsQE5sPfQAAADdJREFUeJxjYIACQRChaCziwMCqJOzIwMAaJGIswMAQpCgMJEOVFBkYElJDVRkY2BhYA0AkEAAAfS4EsT2ccyoAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRF/9voAAAArE01nAAAAA5JREFUeJxjYGD4wADEAAWoAeH1ZN1mAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAAAQB4+nsq9gAAAAxJREFUeJxjSGAAQwAGCAGBFZY4EAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAAYf+LBTy/AgAAAB9JREFUeJxjCGlgiGlgAILbDgyeYHTSAcS928AQ0gAAZgkHGDG1EzEAAAAASUVORK5CYII=']
         button_images, actual_images = [], []
 
-        chooser = Toplevel()
-        chooser.geometry('151x151')
-        chooser.configure(bg='#36393e')
+        try:    self.chooser.destroy()
+        except:    pass
+
+        self.chooser = Toplevel()
+        self.chooser.wm_iconphoto(True, icon)
+        self.chooser.geometry('266x115')
+        self.chooser.configure(bg='#36393e')
         for i in range(len(b64_cloths)):
             button_images.append(ImageTk.PhotoImage(Image.open(BytesIO(b64decode(b64_cloths[i]))).resize((20, 20))))
             actual_images.append(Image.open(BytesIO(b64decode(b64_cloths[i]))))
 
-            button = Button(chooser, image=button_images[i], command=lambda i=i: self.set_image(actual_images[i]))
-            button.grid(row=int(i / 4), column=i % 4)
+            button = Button(self.chooser, image=button_images[i], command=lambda i=i: self.set_image(actual_images[i]))
+            button.grid(row=int(i / 7), column=i % 7)
 
         #replacement for global definition
         self.button_images = button_images
@@ -245,19 +253,23 @@ class color_picker:
             messagebox.showwarning('Warning', 'No Cloth Uploaded: ' + str(e))
 
     def generate(self):
-        selection_window = Toplevel()
-        selection_window.title(self.title)
-        selection_window.geometry('233x98')
-        selection_window.configure(bg='#36393e')
+        try:    self.selection_window.destroy()
+        except:    pass
+
+        self.selection_window = Toplevel()
+        self.selection_window.wm_iconphoto(True, icon)
+        self.selection_window.title(self.title)
+        self.selection_window.geometry('233x98')
+        self.selection_window.configure(bg='#36393e')
 
         #image label for previews
         color_preview_image = ImageTk.PhotoImage(self.image.resize((60, 60), resample=Image.BOX))
 
-        color_preview = Label(selection_window, image=color_preview_image)
+        color_preview = Label(self.selection_window, image=color_preview_image)
         color_preview.grid(row=0, column=0)
 
         #main buttons
-        buttons = Frame(selection_window)
+        buttons = Frame(self.selection_window)
 
         choose_color = Button(buttons, text='Choose Color', command=self.choose_color)
         choose_color.grid(row=0, column=0)
@@ -277,8 +289,13 @@ class color_picker:
 #tk button commands
 def update_previews():
     try:
-        preview_sheet_sample.update_image(sheet.get_image(seek_index.num, x, y))
-        preview_mask_sample.update_image(mask_sheet.get_image(seek_index.num, x, y))
+        columnspan, rowspan = 1, 1
+        if mode[0] == 'gif':
+            columnspan = 6
+            rowspan = mode[1]
+
+        preview_sheet_sample.update_image(sheet.get_image(seek_index.num, x * columnspan, y * rowspan))
+        preview_mask_sample.update_image(mask_sheet.get_image(seek_index.num, x * columnspan, y * rowspan))
     except:
         pass
 
@@ -361,6 +378,7 @@ def bg_color_chooser():
 def update_mode(new_mode):
     global mode
     mode = modes[new_mode]
+    render()
 
 def update_render_image():
     global rendered_display, gif_frame, too_large
@@ -652,6 +670,10 @@ if __name__ == '__main__':
     #window setup
     window = Tk()
     window.title('Sprite Renderer')
+
+    #icon setup
+    icon = PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAACk9JREFUeJyFV2uMXGUZfs75vnOb2+7sLr1tr0vbpdtWhEK5VKCiginaWCARDUIMJGjQ+MMQwBh/iEb9YYwYgggEYkhAo+AlmFKppCm2FLbbsktvC9vrbne22+7s7lzPnJvPd+bMthCNs/l2Zr75Lu/7vM/7vs+RV89fEAERIk2DHgSzeogcJxBoEbRIg+B8qAOhpoMfEUWc519rD9Ri/mv+hvg3boMehs3fOEL+6XzX1VJNmw2kyLXOkUbzBK6KkPbCXBgFMHl51ox4scSUp8MNeSgta12NS/bgog0ts6CFzd91vrfz5rT04LoRKoEyTuQqQp87R5phmBynoT1w8eklEtfcuBJrt9yG159/Db/fMwGhixiNKPHkogk0KPk+ZxTnQoUAPQx5dkr4ePzxO2D6Gvb/ay/+va+Aw5GYO0c6QThrBshZvovPrRb42pM/xo7xhagvtlGZeA6ZIIwPVZCpdz25aO7eliEt71X41LoojI3z6kS0FmJ08yNY1XcU1137Ep781VsohA6qQitLhzF3fA/r2hu476eP45n3JMYa57D21Ls4eWwWudBGoFBikDUNn7j2ou/aJUbNhYRGm0GEgb/vRr7nFjyz/Tge/voDuHdsHC++NIzzsDLSoofL4OL+R+/EW/6VOH50F27fegOmXjmEsB6iS68Tz2bMJP7PK7EkJjGahA3Ig7HD5/DZyikcWLsc23cfx0MPPoYvHnoYfzlYh2wn9HffsxrFjfdi32vvomPxAlxePYv3dh3BplVd6LvrM7y4Tu8JKzMhhiEeCQYfg+UiRVXmRI6D0vAE9r3wJqZ27UHv1u+QBx/i1QNdeOBnP8TIVx+DvG6ljWXffgzPvnkMUWMWnSuXwHl/F2bGatj2xN04d9MWjB8cQirjgGjCJxmlZUHncEkPXzegckkzTJRrLiocpmnGxoZOBhtulVj25l6c2HMQS7dM4gD3nTk0hDcW3oKt37sLcvM3t2HX+S4E04No+AGW2h4m9w6yGEQQvPGdl/+K4skTsHlJveExDzRYKQeRMFD2I3hMVc2yEUkLZ6emMT5VhGUYMfzVWgP3f+V6rF6xHB/tHML6o4OwOlfALBUx9M5B9H6eBmD9rRjddxDZjI2qZuKqYAxnPxzEwryGhikxwUOzuTZk0g4ML4Drh3BVcRG82JYw6blCQ9WMdoZDOBZMSbYwC6Zny5iFha42AwXuMU/uR9/mDfhg/wQ6O1MYGDwB+WGB8fWqkFJHR1qixJRZv+02eLXzGKkGGB2bQO+SLljpNCIaUK7UUSjOEnKL0JPlREKScZ7nIdA1OFwn+I4gIAFnMHpmEt09l6HjS2sg11wLUZxBighmbBuzVRfyzJmzcLJpSFrfbhl4rxLiWN82VGcmMTUyDFsECIlAnfHUDFW1CW+D+W7SAKKg80LTSTcLS6OB0PdjA9wwQLo9B1Eq4cV0D6xNG5FJdaPhlrF44TzUXZcFi5WwMD2DbFsONuNoqHrPC0cuTOHEuWmkeJFfqqD8z30ouWmctUIE0iXzfGamqngaSkJAEgWVDB7rRc0jd6oSi4iAbIvQ6Lsc/RcqcCIHG7ONeJ8is+JbuVyG7LmiD8NHD8MwasiH7TAYCkYUHSJE+4IuvL9Xx53HR9DTCewcA/aQhPuZaGfpcFuScg2OKkcvxyaOmzhu4I+7CgJv9CxF/jJByA0YrCcztXpcIyYmyIOOTsih06O4+eZbcH58HIVCAY5mY7QwgSjwYWdyKHsCFr1b/SgHD31op4H+AwLbPwKeiXxMaQFWk8vfNQVu6qMRV3vAF3xaS6OetVCv1GCw+RSnp3E+l4v7gyBJr71xE84RfTn0pz/g4MhpbNl0DdasW4dJGlF3G0wlgfJMCW4wjSfo5lUvkOUPE/p7GtiYAdpH0niaTSWiAZlQ4kGbfm1leK6kewPA3j8K/Ja49BQn0fBWgNCyRtTQ20ucmDm7Dx9F/1u7IX+Un8TfjuzGb94fwpoN67F53RXoXb0KJ08cx8jpMzBIpgHm9UNHMvjG9yN0LwKOTQG/jgil7qGLIRnWXdxVcvCtp1PodCIcOqXjKQJ9warhepJ0fjZFIs9DPp/HO4cOY+fAB2jj+Y8sJAf+caiCO1ZxLNHxk/5+/Hz/IK65vBvLchmMTUwCi5dgw4JFKDB+vyhraLPaIToqmNz/NsmkCpEOn7Ce6rDw3Job4ZZ9uEt9LDJ9rGVWdXVk0c34vzt6Br97fQf0iosH8iHuWzGFHUeLkBcaBl49EqCvawRPrezEq/V5+MHbA7j+UysZex1VFhSfg3oEgRVghl1zftWL27Iinp0Q0FAKyGmgRPHBuhgbVyF6JcLu1yrY3j8E7dQp/PnWhaicHsErAwHGqiZLidBYUgX6x0m+mWnc3D2Fl69cjicZ93FWMlNrpoxqRqotS+a+Va2wfyqpdXFU2NKLxSJK7H7McBgqO9iQbM/CR5aJ+5dncbtWxuCBYQxOCtYJVcjYVzTmpcbK6VMujVcN7Bj28OV5RSwxOjE0XUF3lqWVHAjDKDYiohF+oxF3PT0RIkrrRfTWpbeCHdAWJtGLYDBLVCkvsZ78stclCj6OnLfhMtXV5apgybhq6k1NE1JLVdlHa4SmYDRgUh9ysqnxotZQ38P4YoIHgeZQayIiRZjiYsNeCMl1qjihMotJ12ZKO+SMspi3CSVwdBoALT5IyalIR7y5bgLnZhhLPTmYVW3OAPWZQ08EikwMUBpQ43zEUET0PFaaWkgnqInrJGZkw0kRwXJTvcYOKFEaywg1p+Dln8EG49KIas1Higy3tESaK5GZqBxFOCMhoJGoH4MXqXlVaEyKWJOrHR4cct5tuGzlIdIOxS28RDhpicpqyWoVY36yDbVEg8ma3iZZ59U8a7+6WBmhvHU4Uq2LExRSPCSrPFPGsWtayhm9GQbJzw3Ku6ytJxe35L2WINCS1xwpqQ4U6NAE8qYRx1V5FUstvlssoxkik7skBFSNyHJzJ0WL6qqWKuOMUZrG26ppGTplOQ2xBU+OH1PmBK1sargofppRRqTpkuVTG6j2HD/i6HHsY/s4Z/J7ioaUEiTUASol81zTxkzQiZrNdaoWpLjVUrRRZGUmpE1dkZ8IN1NXtfCPCV0VgqySeKRqnpvzyeMWYn40X4Y6XBUZledKqCbdsJ3eKhmnLiCH45HmUKHwyfKInMqRhGwxlBSCxY1VNAg/YQAPzHImDATauCmnLtb1iwsUAfnd4LsKgZfUAC8JQSbOKD3mhcm9qdgYDb7iC0mYyTA8omlw6/UxAwTTJmPpqAeSDFbwkXhBswq2DJTKS4bATja30lFBLZmC0peUaIFSa/GDCetnnG5V9gArTwlnaE32/jcDGD7Mz0gca9gUluzbiv3KAPVgkhgh1KFRUoiApBJq8WURdWGoFHGcjqrAsWqSWJQDqFIGpRSqJM6F8v8wIBBaqRKIbC1QqsiPn+8Ed8cPJMmztrikEraCIxICq2KkJ+TSteZzojJMPSUrGTZFvUl3SnHEktd/ABAYzYQ7a5XFAAAAAElFTkSuQmCC'))
+    window.wm_iconphoto(True, icon)
 
     #compatibility sizing
     width = window.winfo_screenwidth()

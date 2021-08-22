@@ -36,4 +36,4 @@ All modes support masks
 - Full Overview
   - Renders the first image of each row and arranges them in a 6-column display
 - Quick Overview
-  - Same as Full Overview, except only renders every 4th row (for sheets of skins)
+  - Same as Full Overview, except only renders every 3rd row (for sheets of skins)

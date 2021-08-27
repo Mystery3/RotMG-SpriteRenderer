@@ -7,6 +7,7 @@ from threading import Timer
 from imageio import mimsave, imread
 from io import BytesIO
 from base64 import b64decode
+import win32clipboard
 
 #class for sheets
 class sheet_handler:
@@ -291,7 +292,7 @@ def update_previews():
     try:
         columnspan, rowspan = 1, 1
         if mode[0] == 'gif':
-            columnspan = 6
+            columnspan = 7
             rowspan = mode[1]
 
         preview_sheet_sample.update_image(sheet.get_image(seek_index.num, x * columnspan, y * rowspan))
@@ -397,7 +398,7 @@ def update_render_image():
         rendered_image.config(width=300, height=100)
         rendered_image.create_image(0, 0, image=too_large, anchor=NW)
     else:
-        if modes[mode_var.get()][0] == 'png' or modes[mode_var.get()][0] == 'over':
+        if modes[mode_var.get()][0] == 'png' or modes[mode_var.get()][0] == 'over' or modes[mode_var.get()][0] == 'whl':
             rendered_image.config(width=rendered_images[0].size[0], height=rendered_images[0].size[1])
             rendered_display = ImageTk.PhotoImage(rendered_images[0])
             rendered_image.create_image(0, 0, image=rendered_display, anchor=NW)
@@ -435,6 +436,22 @@ def save_as_gif():
     except Exception as e:
         return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
 
+def send_image_to_clipboard():
+    if len(rendered_images) == 0:
+        messagebox.showerror('Error', 'Nothing rendered yet.')
+        return
+
+    if mode[0] == 'gif' or mode[0] == 'ani':
+        messagebox.showwarning('Error', 'GIFs cannot be copied to the clipboard, only the first frame is copied.')
+
+    image_buffer = BytesIO()
+    rendered_images[0].convert('RGBA').save(image_buffer, 'BMP')
+
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardData(win32clipboard.CF_DIB, image_buffer.getvalue()[14:])
+    win32clipboard.CloseClipboard()
+
 #rendering functions
 def render():
     global x, y
@@ -449,6 +466,7 @@ def render():
         if mode[0] == 'gif':    render_gif(modes[mode_var.get()][1])
         elif mode[0] == 'ani':    render_animation(animation_length_entry.get())
         elif mode[0] == 'over':    render_overview(modes[mode_var.get()][1])
+        elif mode[0] == 'whl':    render_whole()
         else:    render_image()
     except Exception as e:
         messagebox.showerror('Error', 'Rendering error: ' + str(e))
@@ -636,9 +654,7 @@ def render_overview(skip):
     rendered_images.append(image_base)
 
 def render_whole():
-    global rendered_images, too_large, mode
-    mode = ('png',)
-    mode_var.set('Image Mode')
+    global rendered_images
 
     rendered_images.clear()
     rendered_image.delete('all')
@@ -664,7 +680,6 @@ def render_whole():
             whole_sheet_render.alpha_composite(next_image, ((x + 2) * scale * row, (y + 2) * scale * column))
 
     rendered_images.append(whole_sheet_render)
-    update_render_image()
 
 if __name__ == '__main__':
     #window setup
@@ -684,7 +699,7 @@ if __name__ == '__main__':
     #vars
     sheet = sheet_handler('')
     mask_sheet = sheet_handler('')
-    modes = {'Image Mode': ('png',), 'Pet or Enemy Mode': ('gif', 1), 'Player Skin Mode': ('gif', 3), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Overview': ('over', 3)}
+    modes = {'Image Mode': ('png',), 'Whole Sheet': ('whl',), 'Pet or Enemy Mode': ('gif', 1), 'Player Skin Mode': ('gif', 3), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Overview': ('over', 3)}
     mode = ('png',)
     rendered_images, picture_widgets = [], set()
     x, y = 8, 8
@@ -943,9 +958,9 @@ if __name__ == '__main__':
     picture_widgets.add(render_button)
 
     #render whole sheet
-    render_whole_button = Button(finish_buttons, text='Render Whole Sheet', command=render_whole)
-    render_whole_button.grid(row=1, column=0, sticky='we')
-    picture_widgets.add(render_whole_button)
+    clipboard_button = Button(finish_buttons, text='Copy to Clipboard', command=send_image_to_clipboard)
+    clipboard_button.grid(row=1, column=0, sticky='we')
+    picture_widgets.add(clipboard_button)
 
     #saves first frame if multiple
     save_image_button = Button(finish_buttons, text='Save PNG', command=save_as_image)

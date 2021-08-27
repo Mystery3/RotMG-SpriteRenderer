@@ -19,6 +19,7 @@ A replacement for Tuvior's Tool
 - Save as a PNG or a GIF
 - GIFs are previewed before saving
 - Images that would extend beyond the window are instead displayed in a separate window
+- Copying Image to clipboard
 
 # Modes
 All renders have a 1-pixel solid black outline
@@ -26,6 +27,8 @@ All modes support masks
 
 - Image Mode
   - Renders the selection as an image
+- Whole Sheet
+  - Renders each image in the sheet
 - Pet or Enemy Mode
   - Creates a GIF of 1 row of a properly formatted animation (https://cdn.discordapp.com/attachments/872906948717195264/873640825492496404/QUFc2BtMCO4CppgsHA2r7bjN62jd_RgZ3-1Ow3HV24Jckgtht9ARvK7YbIFFD7Zr0CgbeRqEXMJhV-37sSntmVz0t990pR-FxWeI.png)
 - Player Skin Mode

@@ -20,6 +20,7 @@ A replacement for Tuvior's Tool
 - GIFs are previewed before saving
 - Images that would extend beyond the window are instead displayed in a separate window
 - Copying Image to clipboard
+- Pasting Image from clipboard as the main sheet (due to clipboard limitations, not all images work, images from Chrome and PAINT.net will work, from discord will not)
 
 # Modes
 All renders have a 1-pixel solid black outline

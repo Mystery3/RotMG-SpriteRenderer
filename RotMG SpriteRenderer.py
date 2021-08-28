@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog, colorchooser, messagebox, font, PhotoImage
-from PIL import Image, ImageFilter, ImageTk, ImageDraw
+from PIL import Image, ImageFilter, ImageTk, ImageDraw, ImageGrab
 from math import ceil, floor
 from threading import Timer
 from imageio import mimsave, imread
@@ -25,19 +25,7 @@ class sheet_handler:
         return self.sheet.crop((column * x, row * y, column * x + x1, row * y + y1)).convert('RGBA')
 
     def close_sheet(self):
-        global seek_index
-        self.sheet = ''
-
-        seek_index.num = 0
-        seek_entry.delete(0, END)
-        seek_entry.insert(0, hex(seek_index.num))
-
-        preview_image.grid_remove()
-        rendered_image.grid_remove()
-
-        gif_timer.stop()
-
-        for widg in picture_widgets:    widg.state(('disabled',))
+        self.sheet = None
 
 #class for images
 class image_handler:
@@ -156,6 +144,9 @@ class index:
     def __init__(self, num: int):
         self.num = num
     
+    def set_num(self, num: int):
+        self.num = num
+
     def hex_to_int(self, hex: str) -> None:
         self.num = int(hex[2:], 16)
 
@@ -301,7 +292,7 @@ def update_previews():
         pass
 
 def update_index_frame_from_button(increment: int):
-    if seek_index.num + increment > -1:    seek_index.num = seek_index.num + increment
+    if seek_index.num + increment > -1:    seek_index.set_num(seek_index.num + increment)
 
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
@@ -310,7 +301,11 @@ def update_index_frame_from_button(increment: int):
     render()
 
 def update_index_frame_from_entry(event):
-    if int(seek_entry.get()[2:], 16) > -1:    seek_index.hex_to_int(seek_entry.get())
+    try:
+        if int(seek_entry.get()[2:], 16) > -1:    seek_index.hex_to_int(seek_entry.get())
+    except:
+        return messagebox.showerror('Error', 'Invalid Index')
+
 
     update_previews()
     render()
@@ -325,10 +320,10 @@ def open_sheet():
         messagebox.showwarning('Warning', 'No sheet opened.')
         return
     
-    mask_sheet = sheet_handler('')
+    mask_sheet = sheet_handler(None)
     mask_check.state(('disabled', '!selected'))
 
-    seek_index.num = 0
+    seek_index.set_num(0)
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
@@ -339,7 +334,7 @@ def open_sheet():
     render()
 
 def open_mask():
-    global mask_sheet, seek_index
+    global mask_sheet
     opened_file = filedialog.askopenfilename()
     try:
         mask_sheet = sheet_handler(Image.open(opened_file))
@@ -347,7 +342,7 @@ def open_mask():
         messagebox.showwarning('Warning', 'No sheet opened.')
         return
 
-    seek_index.num = 0
+    seek_index.set_num(0)
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
@@ -358,13 +353,20 @@ def open_mask():
     render()
 
 def close_sheets():
-    try:
-        mask_check.state(('disabled', '!selected'))
-        for widg in picture_widgets:    widg.state(('disabled',))
-        sheet.close_sheet()
-        mask_sheet.close_sheet()
-    except:
-        pass
+    seek_index.set_num(0)
+    seek_entry.delete(0, END)
+    seek_entry.insert(0, hex(seek_index.num))
+
+    mask_check.state(('disabled', '!selected'))
+    for widg in picture_widgets:    widg.state(('disabled',))
+
+    sheet.close_sheet()
+    mask_sheet.close_sheet()
+
+    _image = Image.new('RGBA', (5, 5), (0, 0, 0, 0))
+    preview_sheet_sample.update_image(_image)
+    preview_mask_sample.update_image(_image)
+    rendered_image.delete('all')
 
     gif_timer.stop()
 
@@ -382,12 +384,35 @@ def update_mode(new_mode):
     render()
 
 def update_render_image():
-    global rendered_display, gif_frame, too_large
+    global rendered_display, gif_frame, too_large, oversize_preview, oversize_preview_image
     gif_timer.stop()
     rendered_image.delete('all')
 
     if rendered_images[0].size[0] > (int(width/2.4)) or rendered_images[0].size[1] > (int(height/1.35)): #800x800 on 1080p
-        rendered_images[0].show()
+        #too large canvas
+        try:    oversize_preview.destroy()
+        except: pass
+
+        window.focus_set()
+
+        oversize_preview = Toplevel()
+        oversize_preview.title('Render Preview')
+        oversize_preview.geometry('{}x{}'.format(int(width/2.353), int(height/1.319))) #815x815 on 1080p
+        oversize_preview.configure(bg='#36393e')
+
+        oversize_preview_image = ImageTk.PhotoImage(rendered_images[0])
+        oversize_canvas = Canvas(oversize_preview, bg='#36393e', relief=FLAT, highlightthickness=0, width=int(width/2.39), height=int(height/1.34), scrollregion=(0, 0, rendered_images[0].size[0], rendered_images[0].size[1])) #815x815 on 1080p
+        oversize_canvas.create_image(0, 0, image=oversize_preview_image, anchor=NW)
+        oversize_canvas.grid(row=0, column=0)
+
+        vert_scroll = Scrollbar(oversize_preview, orient=VERTICAL, command=oversize_canvas.yview)
+        vert_scroll.grid(row=0, column=1, sticky='ns')
+
+        horiz_scroll = Scrollbar(oversize_preview, orient=HORIZONTAL, command=oversize_canvas.xview)
+        horiz_scroll.grid(row=1, column=0, sticky='ew')
+
+        oversize_canvas.config(xscrollcommand=horiz_scroll.set, yscrollcommand=vert_scroll.set)
+
         gif_timer.stop()
 
         too_large = Image.new('RGBA', (300, 100), (0, 0, 0, 0))
@@ -397,6 +422,7 @@ def update_render_image():
 
         rendered_image.config(width=300, height=100)
         rendered_image.create_image(0, 0, image=too_large, anchor=NW)
+
     else:
         if modes[mode_var.get()][0] == 'png' or modes[mode_var.get()][0] == 'over' or modes[mode_var.get()][0] == 'whl':
             rendered_image.config(width=rendered_images[0].size[0], height=rendered_images[0].size[1])
@@ -451,6 +477,47 @@ def send_image_to_clipboard():
     win32clipboard.EmptyClipboard()
     win32clipboard.SetClipboardData(win32clipboard.CF_DIB, image_buffer.getvalue()[14:])
     win32clipboard.CloseClipboard()
+
+def grab_image_from_clipboard(event):
+    global sheet, mask_sheet
+    if 'entry' in str(window.focus_get()):
+        return
+
+    win32clipboard.OpenClipboard()
+
+    if win32clipboard.IsClipboardFormatAvailable(49450):
+        data = BytesIO(win32clipboard.GetClipboardData(49450))
+        image = Image.open(data)
+
+    elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
+        messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+        data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
+        image = Image.open(data)
+
+    elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
+        messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+        data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
+        image = Image.open(data)
+
+    else:
+        return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+
+    win32clipboard.CloseClipboard()
+
+    sheet = sheet_handler(image)
+
+    mask_sheet = sheet_handler(None)
+    mask_check.state(('disabled', '!selected'))
+
+    seek_index.set_num(0)
+    seek_entry.delete(0, END)
+    seek_entry.insert(0, hex(seek_index.num))
+
+    for widg in picture_widgets:    widg.state(('!disabled',))
+
+    update_index_frame_from_entry(None)
+    update_previews()
+    render()
 
 #rendering functions
 def render():
@@ -697,8 +764,8 @@ if __name__ == '__main__':
     window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6))) #1650x648 on 1080p
 
     #vars
-    sheet = sheet_handler('')
-    mask_sheet = sheet_handler('')
+    sheet = sheet_handler(None)
+    mask_sheet = sheet_handler(None)
     modes = {'Image Mode': ('png',), 'Whole Sheet': ('whl',), 'Pet or Enemy Mode': ('gif', 1), 'Player Skin Mode': ('gif', 3), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Overview': ('over', 3)}
     mode = ('png',)
     rendered_images, picture_widgets = [], set()
@@ -721,7 +788,9 @@ if __name__ == '__main__':
         bordercolor='#292b2f',
         lightcolor='#292b2f',
         darkcolor='#292b2f',
-        insertcolor='#d6d7d8')
+        insertcolor='#d6d7d8',
+        gripcount=10,
+        troughcolor='#45494f')
 
     style.configure('separator.TFrame',
         background='#292b2f')
@@ -740,6 +809,12 @@ if __name__ == '__main__':
     style.map('TMenubutton', background=[('disabled', '#36393e'), ('active', '#292b2f')])
     style.map('TLabel', background=[('disabled', '#36393e')])
     style.map('TCheckbutton', background=[('disabled', '#36393e')])
+    style.map('Vertical.TScrollbar', background=[('active', '#45494f')])
+    style.map('Horizontal.TScrollbar', background=[('active', '#45494f')])
+
+    ##################################################################################################################################
+    #sheet pasting
+    window.bind('<Control-v>', grab_image_from_clipboard)
 
     ##################################################################################################################################
     #sidebar
@@ -782,6 +857,7 @@ if __name__ == '__main__':
     seek_entry = Entry(index_frame, justify='center', width=6, font=default_font)
     seek_entry.insert(0, hex(seek_index.num))
     seek_entry.bind('<Return>', update_index_frame_from_entry)
+    seek_entry.bind('<FocusOut>', update_index_frame_from_entry)
     seek_entry.grid(row=1, column=1, ipady=int(height/180)) #6 on 1080p
     picture_widgets.add(seek_entry)
 
@@ -799,6 +875,7 @@ if __name__ == '__main__':
 
     width_entry = Entry(et_al_frame, width=10, justify='center')
     width_entry.insert(0, '8')
+    width_entry.bind('<Return>', lambda _:render())
     width_entry.grid(row=0, column=0)
     picture_widgets.add(width_entry)
 
@@ -808,6 +885,7 @@ if __name__ == '__main__':
 
     height_entry = Entry(et_al_frame, width=10, justify='center')
     height_entry.insert(0, '8')
+    height_entry.bind('<Return>', lambda _:render())
     height_entry.grid(row=1, column=0)
     picture_widgets.add(height_entry)
 

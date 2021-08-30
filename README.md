@@ -21,6 +21,7 @@ A replacement for Tuvior's Tool
    - Control + / closes the open sheets
    - Control + C copies the first frame of the current render
    - Control + V pastes a sheet into the tool as the main sheet
+   - Pressing Enter in any entry field renders
 
 # Modes
 All renders have a 1-pixel solid black outline

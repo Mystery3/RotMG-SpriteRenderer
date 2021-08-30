@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 from tkinter import filedialog, colorchooser, messagebox, font, PhotoImage
-from PIL import Image, ImageFilter, ImageTk, ImageDraw, ImageGrab
+from PIL import Image, ImageFilter, ImageTk, ImageDraw
 from math import ceil, floor
 from threading import Timer
 from imageio import mimsave, imread
@@ -56,7 +56,12 @@ class image_handler:
 
         #resize silhouette and create bg
         sized_silhouette = silhouette.resize((x*scale, y*scale), resample = Image.BOX)
-        bg = Image.new('RGBA', ((x+2)*scale, (y+2)*scale), (0, 0, 0, 0))
+
+        if 'selected' in bg_check.state():
+            bg = Image.new('RGBA', ((x+2)*scale, (y+2)*scale), bg_var.get())
+
+        else:
+            bg = Image.new('RGBA', ((x+2)*scale, (y+2)*scale), (0, 0, 0, 0))        
 
         #shadow and outline if no mask
         if self.mask == None:
@@ -371,12 +376,14 @@ def close_sheets():
     gif_timer.stop()
 
 def bg_color_chooser():
-    global bg_color_image, bg_color_label
+    global bg_color_image
     if (new_color := colorchooser.askcolor(bg_var.get())[1]) != None:
         bg_var.set(new_color)
 
     bg_color_image = ImageTk.PhotoImage(Image.new('RGB', (20, 20), bg_var.get()))
     bg_color_label.config(image=bg_color_image)
+
+    render()
 
 def update_mode(new_mode):
     global mode
@@ -455,14 +462,69 @@ def save_as_image():
         return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
 
 def save_as_gif():
+    #exit if wrong mode or invalid file path
+    if not (mode[0] == 'gif' or mode[0] == 'ani'):
+        return messagebox.showerror('Error', 'Wrong mode.')
+
     if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = 'sprite.gif', filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
         return messagebox.showerror('Error', 'File not saved, invalid path.')
+
     try:
-        mimsave(file_path, frames, format='GIF', duration=float(gif_speed_entry.get()) / 1000)
+        gif_bytes = BytesIO()
+
+        if 'selected' in bg_check.state():
+            mimsave(gif_bytes, frames, format='GIF', duration=float(gif_speed_entry.get()) / 1000)
+
+        else:
+            temp_rendered_images = []
+
+            #modify each black pixel in every other frame to be slightly off-black so PIL optimization doesnt mess the gif up
+            for i in range(len(rendered_images)):
+                if i % 2 == 0:
+                    temp_image = rendered_images[i]
+                    temp_rendered_images.append(temp_image.copy())
+
+                else:
+                    temp_image = rendered_images[i].copy()
+                    inc = 0
+                    for pxl in temp_image.getdata():
+                            if pxl[0:3] == (0, 0, 0):    temp_image.putpixel((int(inc % temp_image.size[0]), int(inc / temp_image.size[0])), (0, 0, 1))
+                            inc+= 1
+
+                    temp_rendered_images.append(temp_image.copy())
+
+            temp_rendered_images[0].save(gif_bytes, 'GIF', loop=0, append_images=temp_rendered_images[1:], save_all=True, include_color_table=True, optimize=False, duration=int(gif_speed_entry.get()))
+
+            buffer = gif_bytes.getbuffer()
+            graphic_control_indexes, palette_indexes, transparent_indexes = [], [], []
+
+            #look for graphic control extension
+            for i in range(781, len(buffer) - 20):
+                if hex(buffer[i]) + hex(buffer[i + 1]) + hex(buffer[i + 2]) == '0x210xf90x4':
+                    graphic_control_indexes.append(i)
+                    palette_indexes.append(i + 37)
+
+            #look for the bg color in each palette
+            for i in palette_indexes:
+                for j in range(i, len(buffer))[::3]:
+                    if int(bg_var.get()[1:3], 16) == buffer[j] and int(bg_var.get()[3:5], 16) == buffer[j + 1] and int(bg_var.get()[5:7], 16) == buffer[j + 2]:
+                        transparent_indexes.append(int((j - i) / 3))
+                        break
+
+            for i in range(len(graphic_control_indexes)):
+                buffer[graphic_control_indexes[i] + 3] = buffer[graphic_control_indexes[i] + 3] + 1 + 8 #+1 for transparent color flag and +8 for disposal method 2
+                buffer[graphic_control_indexes[i] + 6] = transparent_indexes[i]
+
+        with open(file_path, 'wb') as file:
+            file.write(gif_bytes.getvalue())
+
     except Exception as e:
         return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
 
 def send_image_to_clipboard():
+    if 'entry' in str(window.focus_get()):
+        return
+
     if len(rendered_images) == 0:
         messagebox.showerror('Error', 'Nothing rendered yet.')
         return
@@ -470,12 +532,15 @@ def send_image_to_clipboard():
     if mode[0] == 'gif' or mode[0] == 'ani':
         messagebox.showwarning('Error', 'GIFs cannot be copied to the clipboard, only the first frame is copied.')
 
-    image_buffer = BytesIO()
-    rendered_images[0].convert('RGBA').save(image_buffer, 'BMP')
+    bmp_buffer, png_buffer = BytesIO(), BytesIO()
+    rendered_images[0].convert('RGBA').save(bmp_buffer, 'BMP')
+    rendered_images[0].convert('RGBA').save(png_buffer, 'PNG')
 
     win32clipboard.OpenClipboard()
     win32clipboard.EmptyClipboard()
-    win32clipboard.SetClipboardData(win32clipboard.CF_DIB, image_buffer.getvalue()[14:])
+    win32clipboard.SetClipboardData(win32clipboard.CF_DIB, bmp_buffer.getvalue()[14:])
+    win32clipboard.RegisterClipboardFormat('PNG')
+    win32clipboard.SetClipboardData(49450, png_buffer.getvalue())
     win32clipboard.CloseClipboard()
 
 def grab_image_from_clipboard(event):
@@ -563,7 +628,12 @@ def render_gif(rows):
     global rendered_images, frames
     rendered_images.clear()
     scale = int(scale_entry.get())
-    gif_base = Image.new('RGBA', (4 * (x + 2) * scale, rows * (y + 2) * scale), bg_var.get())
+
+    if 'selected' in bg_check.state():
+        gif_base = Image.new('RGBA', (4 * (x + 2) * scale, rows * (y + 2) * scale), bg_var.get())
+    else:
+        gif_base = Image.new('RGBA', (4 * (x + 2) * scale, rows * (y + 2) * scale), (int(bg_var.get()[1:3], 16), int(bg_var.get()[3:5], 16), int(bg_var.get()[5:7], 16), 0))
+
     gif_images = [gif_base.copy()] + [gif_base.copy()]
     sheet_sample = sheet.get_image(seek_index.num, x * 7, y * rows)
 
@@ -633,7 +703,7 @@ def render_gif(rows):
     for img in gif_images:
         buffer = BytesIO()
 
-        img = rendered_images[frame].convert('RGB')
+        img = rendered_images[frame].convert('RGBA')
         img.save(buffer, 'PNG')
 
         frames.append(imread(buffer.getvalue(), format='PNG-PIL'))
@@ -650,7 +720,11 @@ def render_animation(length):
     if length == 0:
         length = int(sheet.sheet_size()[0] / x) * int(sheet.sheet_size()[1] / y)
     
-    animation_base = Image.new('RGBA', ((x + 2) * scale, (y + 2) * scale), bg_var.get())
+    if 'selected' in bg_check.state():
+        animation_base = Image.new('RGBA', ((x + 2) * scale, (y + 2) * scale), bg_var.get())
+    else:
+        animation_base = Image.new('RGBA', ((x + 2) * scale, (y + 2) * scale), (int(bg_var.get()[1:3], 16), int(bg_var.get()[3:5], 16), int(bg_var.get()[5:7], 16), 0))
+    
     for garb in range(length):
         animation_frames.append(animation_base.copy())
 
@@ -813,8 +887,13 @@ if __name__ == '__main__':
     style.map('Horizontal.TScrollbar', background=[('active', '#45494f')])
 
     ##################################################################################################################################
-    #sheet pasting
+    #binds
     window.bind('<Control-v>', grab_image_from_clipboard)
+    window.bind('<Control-c>', lambda _: send_image_to_clipboard())
+    window.bind('<Control-o>', lambda _: open_sheet())
+    window.bind('<Control-m>', lambda _: open_mask())
+    window.bind('<Control-r>', lambda _: render())
+    window.bind('<Control-/>', lambda _: close_sheets())
 
     ##################################################################################################################################
     #sidebar
@@ -900,9 +979,12 @@ if __name__ == '__main__':
     mask_check.state(('disabled',))
     mask_check.grid(row=3, column=0, columnspan=2, sticky='w')
 
+    bg_check = Checkbutton(et_al_frame, text='Render BG', command=render)
+    bg_check.grid(row=4, column=0, columnspan=2, sticky='w')
+    picture_widgets.add(bg_check)
+
     shadow_check = Checkbutton(et_al_frame, text='Render Shadows', command=render)
-    shadow_check.state(('selected',))
-    shadow_check.grid(row=4, column=0, columnspan=2, sticky='w')
+    shadow_check.grid(row=5, column=0, columnspan=2, sticky='w')
     picture_widgets.add(shadow_check)
 
     et_al_frame.grid(row=0, column=1, padx=int(height/54)) #20 on 1080p
@@ -920,6 +1002,7 @@ if __name__ == '__main__':
 
     scale_entry = Entry(scale_frame, justify='center', font=default_font)
     scale_entry.insert(0, '5')
+    scale_entry.bind('<Return>', lambda _:render())
     scale_entry.grid(row=0, column=1, sticky='we', ipadx =int(height/18)) #60 on 1080p
     picture_widgets.add(scale_entry)
 
@@ -934,6 +1017,7 @@ if __name__ == '__main__':
 
     gif_speed_entry = Entry(gif_speed_frame, justify='center', font=default_font)
     gif_speed_entry.insert(0, '500')
+    gif_speed_entry.bind('<Return>', lambda _:render())
     gif_speed_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/31.765)) #34 on 1080p
     picture_widgets.add(gif_speed_entry)
 
@@ -948,6 +1032,7 @@ if __name__ == '__main__':
 
     animation_length_entry = Entry(animation_length_frame, justify='center', font=default_font)
     animation_length_entry.insert(0, '0')
+    animation_length_entry.bind('<Return>', lambda _:render())
     animation_length_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/43.2)) #25 on 1080p
     picture_widgets.add(animation_length_entry)
 
@@ -967,7 +1052,7 @@ if __name__ == '__main__':
     bg_color_label.grid(row=0, column=0, sticky='e')
     picture_widgets.add(bg_color_label)
 
-    bg_picker = Button(bg_color_frame, text='Choose Background (GIF)', command=bg_color_chooser)
+    bg_picker = Button(bg_color_frame, text='Choose Background', command=bg_color_chooser)
     bg_picker.grid(row=0, column=1, sticky='we')
     picture_widgets.add(bg_picker)
 
@@ -1035,10 +1120,10 @@ if __name__ == '__main__':
     render_button.grid(row=0, column=0, sticky='we')
     picture_widgets.add(render_button)
 
-    #render whole sheet
-    clipboard_button = Button(finish_buttons, text='Copy to Clipboard', command=send_image_to_clipboard)
-    clipboard_button.grid(row=1, column=0, sticky='we')
-    picture_widgets.add(clipboard_button)
+    #copy to clipboard
+    #clipboard_button = Button(finish_buttons, text='Copy to Clipboard', command=send_image_to_clipboard)
+    #clipboard_button.grid(row=1, column=0, sticky='we')
+    #picture_widgets.add(clipboard_button)
 
     #saves first frame if multiple
     save_image_button = Button(finish_buttons, text='Save PNG', command=save_as_image)

@@ -455,7 +455,7 @@ def update_render_gif():
     else:    frame+= 1
 
 def save_as_image():
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('.png'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
         return messagebox.showerror('Error', 'File not saved, invalid path.')
     try:
         rendered_images[0].save(file_path, 'PNG')
@@ -467,7 +467,7 @@ def save_as_gif():
     if not (mode[0] == 'gif' or mode[0] == 'ani'):
         return messagebox.showerror('Error', 'Wrong mode.')
 
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('.png'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
         return messagebox.showerror('Error', 'File not saved, invalid path.')
 
     try:
@@ -544,7 +544,7 @@ def send_image_to_clipboard():
     win32clipboard.CloseClipboard()
 
 def grab_image_from_clipboard(event):
-    global sheet, mask_sheet
+    global sheet, mask_sheet, opened_file
     if 'entry' in str(window.focus_get()):
         return
 
@@ -580,6 +580,8 @@ def grab_image_from_clipboard(event):
     seek_entry.insert(0, hex(seek_index.num))
 
     for widg in picture_widgets:    widg.state(('!disabled',))
+
+    opened_file = 'unknown.png'
 
     update_index_frame_from_entry(None)
     update_previews()

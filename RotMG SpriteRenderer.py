@@ -7,6 +7,7 @@ from threading import Timer
 from imageio import mimsave, imread
 from io import BytesIO
 from base64 import b64decode
+from datetime import datetime
 import win32clipboard
 
 #class for sheets
@@ -316,7 +317,7 @@ def update_index_frame_from_entry(event):
     render()
 
 def open_sheet():
-    global sheet, seek_index, mask_sheet
+    global sheet, seek_index, mask_sheet, opened_file
 
     opened_file = filedialog.askopenfilename()
     try:
@@ -454,7 +455,7 @@ def update_render_gif():
     else:    frame+= 1
 
 def save_as_image():
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = 'sprite.png', filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('.png'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
         return messagebox.showerror('Error', 'File not saved, invalid path.')
     try:
         rendered_images[0].save(file_path, 'PNG')
@@ -466,7 +467,7 @@ def save_as_gif():
     if not (mode[0] == 'gif' or mode[0] == 'ani'):
         return messagebox.showerror('Error', 'Wrong mode.')
 
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = 'sprite.gif', filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('.png'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
         return messagebox.showerror('Error', 'File not saved, invalid path.')
 
     try:
@@ -539,8 +540,7 @@ def send_image_to_clipboard():
     win32clipboard.OpenClipboard()
     win32clipboard.EmptyClipboard()
     win32clipboard.SetClipboardData(win32clipboard.CF_DIB, bmp_buffer.getvalue()[14:])
-    win32clipboard.RegisterClipboardFormat('PNG')
-    win32clipboard.SetClipboardData(49450, png_buffer.getvalue())
+    win32clipboard.SetClipboardData(png_format, png_buffer.getvalue())
     win32clipboard.CloseClipboard()
 
 def grab_image_from_clipboard(event):
@@ -550,8 +550,8 @@ def grab_image_from_clipboard(event):
 
     win32clipboard.OpenClipboard()
 
-    if win32clipboard.IsClipboardFormatAvailable(49450):
-        data = BytesIO(win32clipboard.GetClipboardData(49450))
+    if win32clipboard.IsClipboardFormatAvailable(png_format):
+        data = BytesIO(win32clipboard.GetClipboardData(png_format))
         image = Image.open(data)
 
     elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
@@ -565,6 +565,7 @@ def grab_image_from_clipboard(event):
         image = Image.open(data)
 
     else:
+        win32clipboard.CloseClipboard()
         return messagebox.showerror('Error', 'Unable to get image from clipboard.')
 
     win32clipboard.CloseClipboard()
@@ -587,6 +588,9 @@ def grab_image_from_clipboard(event):
 #rendering functions
 def render():
     global x, y
+    try:    win32clipboard.CloseClipboard()
+    except:    pass
+
     try:
         x = int(width_entry.get())
         y = int(height_entry.get())
@@ -836,6 +840,9 @@ if __name__ == '__main__':
     height = window.winfo_screenheight()
 
     window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6))) #1650x648 on 1080p
+
+    #for clipboard action
+    png_format = win32clipboard.RegisterClipboardFormat('PNG')
 
     #vars
     sheet = sheet_handler(None)
@@ -1184,6 +1191,11 @@ if __name__ == '__main__':
     rendered_image.grid(row=1, column=2, rowspan=3, sticky='nw')
 
     main_content.grid(row=0, column=1, sticky='nw')
+
+    ##################################################################################################################################
+    #info bar
+    #info_frame = Frame(window, style='separator.TFrame')
+    #info_frame.grid(row=1, column=0, columnspan=100, sticky='sew', ipady=20, ipadx=1000)
 
     ##################################################################################################################################
     #disable widgets

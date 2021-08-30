@@ -1208,3 +1208,4 @@ if __name__ == '__main__':
     frame = 0
 
     window.mainloop()
+    win32clipboard.CloseClipboard()

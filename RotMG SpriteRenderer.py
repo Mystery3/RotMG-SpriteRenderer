@@ -189,6 +189,7 @@ class preview_image:
         self.label = label
     
     def update_image(self, image: Image):
+        #resize image, paste outline
         sized_image = image.convert('RGBA').resize((int(image.size[0] * 50 / x), int(image.size[1] * 50 / y)), resample = Image.BOX) #size is 50 times the size divided by size (size is constant while keeping image dimensions)
         sized_image.alpha_composite(Image.open(BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x006\x00\x00\x006\x08\x06\x00\x00\x00\x8cEj\xdd\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x04gAMA\x00\x00\xb1\x8f\x0b\xfca\x05\x00\x00\x00\tpHYs\x00\x00\x0e\xc3\x00\x00\x0e\xc3\x01\xc7o\xa8d\x00\x00\x00\xf9IDAThC\xed\xdaM\x0e\x820\x14\x04\xe0\xa2;\xe3\x92\x0bx\xffCi\xbc\x83\xae\xfc{SZ\x84\x94\x12\xbb1\xbeq\xbe\x80\xd6R\x0b\x13*4\x86\xee\x19\x82-\xa5..\xa5\xd6\xf6\xb0\xf4\x9d\x95\xfeo\xf6\xb6\xb5\xf5\x14+\x12k|H\xc5\x99\xd47\xda\xeem\xedQ\x07?\x15\xcc\x1a\xa1\xee1|\x9a\xab\xf5_;\x9e\xb8\xa1\xba\xd1\t;\xf8\xde\xd6]*\x0fy\xc6\x02\t\x0brA\x9eM\xfa\xcc\xe4\x8a\x97\xf17V\x1b\xc3\xde\xe4<""2E{\xb9g\xbcAG\x08v\x1e\x8a4b\x1e\xea3F\x89\xfa\xe2qG\x81\xc8;\x8fE\xa48[\x19[\x1e\x11\xf9"M\x82\xbdQ0o\x14LDD\\\xb3\x89\xd51\xcf\xaf\x18\xe4<\xbaA{\xa3`\xdeh\xae("\xf2\x17\xf4\xbf\xa27\xb4\xc1\xc6\xa18U\x1b\x96Kmam\x187\xf6\xdf\xf4<p\xb6\xb8\x8f\xc6\x1d\x17m\xa1\xd6\x1e>\xed\xdf\x1a\xa1\xae\xe9y\xe0\xac\xdcG\x08/\xd1\xcc_\x8a\x96-Ty\x00\x00\x00\x00IEND\xaeB`\x82')), (48, 48))
         photo_image = ImageTk.PhotoImage(sized_image)
@@ -317,6 +318,7 @@ def update_previews():
         columnspan = 7
         rowspan = mode[1]
 
+    #code from sheet_handler.get_image but modified a bit
     length = sheet.sheet_size()[0]
     column = seek_index.num % (length / x)
     row = floor(seek_index.num / (length / y / (x / y)))
@@ -580,8 +582,8 @@ def save_as_gif():
                     temp_image = rendered_images[i].copy()
                     inc = 0
                     for pxl in temp_image.getdata():
-                            if pxl[0:3] == (0, 0, 0):    temp_image.putpixel((int(inc % temp_image.size[0]), int(inc / temp_image.size[0])), (0, 0, 1))
-                            inc+= 1
+                        if pxl[0:3] == (0, 0, 0):    temp_image.putpixel((int(inc % temp_image.size[0]), int(inc / temp_image.size[0])), (0, 0, 2))
+                        inc+= 1
 
                     temp_rendered_images.append(temp_image.copy())
 
@@ -958,6 +960,8 @@ if __name__ == '__main__':
     window.bind('<Left>', lambda _: (update_index_frame_from_button(-1) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
     window.bind('<Right>', lambda _: (update_index_frame_from_button(1) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
     window.bind('<Down>', lambda _: (update_index_frame_from_button(ceil(sheet.sheet_size()[0] / x)) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
+
+    window.bind('<Escape>', lambda _: window.focus_set()) #for exiting from entries
 
     ##################################################################################################################################
     #sidebar

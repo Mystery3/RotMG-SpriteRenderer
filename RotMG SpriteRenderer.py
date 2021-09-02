@@ -251,6 +251,30 @@ class color_picker:
         except Exception as e:
             messagebox.showwarning('Warning', 'No Cloth Uploaded: ' + str(e))
 
+    def upload_from_clipboard(self):
+        win32clipboard.OpenClipboard()
+        #check if png format available
+        if win32clipboard.IsClipboardFormatAvailable(png_format):
+            data = BytesIO(win32clipboard.GetClipboardData(png_format))
+            image = Image.open(data)
+        #check if dibv5 format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
+            messagebox.showwarning('Warning', 'Possible malformed cloth due to invalid format.')
+            image = Image.open(data)
+        #check if dib format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
+            messagebox.showwarning('Warning', 'Possible malformed cloth due to invalid format.')
+            image = Image.open(data)
+        #no valid formats
+        else:
+            win32clipboard.CloseClipboard()
+            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+        win32clipboard.CloseClipboard()
+
+        self.set_image(image)
+
     def generate(self):
         try:    self.selection_window.destroy()
         except:    pass
@@ -260,6 +284,7 @@ class color_picker:
         self.selection_window.title(self.title)
         self.selection_window.geometry('233x98')
         self.selection_window.configure(bg='#36393e')
+        self.selection_window.bind('<Control-v>', lambda _: self.upload_from_clipboard())
 
         #image label for previews
         color_preview_image = ImageTk.PhotoImage(self.image.resize((60, 60), resample=Image.BOX))
@@ -299,10 +324,10 @@ def update_previews():
     previewed_sheet = sheet.sheet.crop((column * x - x, row * y - y, column * x + (x * columnspan) + x, row * y + (y * rowspan) + y)).convert('RGBA')
     preview_sheet_sample.update_image(previewed_sheet)
 
-    try:
+    if mask_sheet.sheet != None:
         previewed_mask = mask_sheet.sheet.crop((column * x - x, row * y - y, column * x + (x * columnspan) + x, row * y + (y * rowspan) + y)).convert('RGBA')
         preview_mask_sample.update_image(previewed_mask)
-    except:
+    else:
         preview_mask_sample.update_image(Image.new('RGBA', (5, 5), (0, 0, 0, 0)))
 
 def update_index_frame_from_button(increment: int):
@@ -324,17 +349,46 @@ def update_index_frame_from_entry(event):
     update_previews()
     render()
 
-def open_sheet():
-    global sheet, seek_index, mask_sheet, opened_file
+def open_sheet(clipboard=False):
+    global sheet, opened_file
 
-    opened_file = filedialog.askopenfilename()
-    try:
-        sheet = sheet_handler(Image.open(opened_file))
-    except:
-        messagebox.showwarning('Warning', 'No sheet opened.')
-        return
-    
-    mask_sheet = sheet_handler(None)
+    if clipboard == False:
+        opened_file = filedialog.askopenfilename()
+        try:
+            sheet = sheet_handler(Image.open(opened_file))
+        except:
+            return messagebox.showwarning('Warning', 'No sheet opened.')
+
+    else:
+        #exit if entry has focus
+        if 'entry' in str(window.focus_get()):
+            return
+
+        win32clipboard.OpenClipboard()
+        #check if png format available (only one that supports transparent bg)
+        if win32clipboard.IsClipboardFormatAvailable(png_format):
+            data = BytesIO(win32clipboard.GetClipboardData(png_format))
+            image = Image.open(data)
+        #check if dibv5 format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
+            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
+            image = Image.open(data)
+        #check if dib format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
+            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
+            image = Image.open(data)
+        #no valid formats
+        else:
+            win32clipboard.CloseClipboard()
+            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+        win32clipboard.CloseClipboard()
+
+        opened_file = 'unknown.png'
+        sheet = sheet_handler(image)
+
+    mask_sheet.close_sheet()
     mask_check.state(('disabled', '!selected'))
 
     seek_index.set_num(0)
@@ -347,14 +401,42 @@ def open_sheet():
     update_previews()
     render()
 
-def open_mask():
+def open_mask(clipboard=False):
     global mask_sheet
-    opened_file = filedialog.askopenfilename()
-    try:
-        mask_sheet = sheet_handler(Image.open(opened_file))
-    except:
-        messagebox.showwarning('Warning', 'No sheet opened.')
-        return
+
+    if clipboard == False:
+        opened_file = filedialog.askopenfilename()
+        try:
+            mask_sheet = sheet_handler(Image.open(opened_file))
+        except:
+            return messagebox.showwarning('Warning', 'No sheet opened.')
+    else:
+        #exit if entry has focus or main sheet not loaded
+        if 'entry' in str(window.focus_get()) or sheet.sheet == None:
+            return
+
+        win32clipboard.OpenClipboard()
+        #check if png format available (only one that supports transparent bg)
+        if win32clipboard.IsClipboardFormatAvailable(png_format):
+            data = BytesIO(win32clipboard.GetClipboardData(png_format))
+            image = Image.open(data)
+        #check if dibv5 format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
+            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
+            image = Image.open(data)
+        #check if dib format available
+        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
+            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
+            image = Image.open(data)
+        #no valid formats
+        else:
+            win32clipboard.CloseClipboard()
+            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+        win32clipboard.CloseClipboard()
+
+        mask_sheet = sheet_handler(image) 
 
     seek_index.set_num(0)
     seek_entry.delete(0, END)
@@ -364,6 +446,7 @@ def open_mask():
     mask_check.state(('!disabled',))
 
     update_index_frame_from_entry(None)
+    update_previews()
     render()
 
 def close_sheets():
@@ -450,7 +533,7 @@ def update_render_image():
             gif_frame = ImageTk.PhotoImage(rendered_images[1])
             rendered_image.create_image(0, 0, image=gif_frame, anchor=NW)
 
-            gif_timer.interval = float(gif_speed_entry.get()) / 1000
+            gif_timer.interval = float(gif_speed_entry.get()) / 1000 - (float(gif_speed_entry.get()) / 10000)
             gif_timer.start()
 
 def update_render_gif():
@@ -550,50 +633,6 @@ def send_image_to_clipboard():
     win32clipboard.SetClipboardData(win32clipboard.CF_DIB, bmp_buffer.getvalue()[14:])
     win32clipboard.SetClipboardData(png_format, png_buffer.getvalue())
     win32clipboard.CloseClipboard()
-
-def grab_image_from_clipboard(event):
-    global sheet, mask_sheet, opened_file
-    if 'entry' in str(window.focus_get()):
-        return
-
-    win32clipboard.OpenClipboard()
-
-    if win32clipboard.IsClipboardFormatAvailable(png_format):
-        data = BytesIO(win32clipboard.GetClipboardData(png_format))
-        image = Image.open(data)
-
-    elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
-        messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
-        data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
-        image = Image.open(data)
-
-    elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
-        messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
-        data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
-        image = Image.open(data)
-
-    else:
-        win32clipboard.CloseClipboard()
-        return messagebox.showerror('Error', 'Unable to get image from clipboard.')
-
-    win32clipboard.CloseClipboard()
-
-    sheet = sheet_handler(image)
-
-    mask_sheet = sheet_handler(None)
-    mask_check.state(('disabled', '!selected'))
-
-    seek_index.set_num(0)
-    seek_entry.delete(0, END)
-    seek_entry.insert(0, hex(seek_index.num))
-
-    for widg in picture_widgets:    widg.state(('!disabled',))
-
-    opened_file = 'unknown.png'
-
-    update_index_frame_from_entry(None)
-    update_previews()
-    render()
 
 #rendering functions
 def render():
@@ -905,12 +944,20 @@ if __name__ == '__main__':
 
     ##################################################################################################################################
     #binds
-    window.bind('<Control-v>', grab_image_from_clipboard)
+    window.bind('<Control-v>', lambda _: open_sheet(clipboard=True)) #lowercase v (no shift)
+    window.bind('<Control-V>', lambda _: open_mask(clipboard=True)) #uppercase v (with shift)
     window.bind('<Control-c>', lambda _: send_image_to_clipboard())
+
     window.bind('<Control-o>', lambda _: open_sheet())
     window.bind('<Control-m>', lambda _: open_mask())
+
     window.bind('<Control-r>', lambda _: render())
     window.bind('<Control-/>', lambda _: close_sheets())
+
+    window.bind('<Up>', lambda _: (update_index_frame_from_button(-ceil(sheet.sheet_size()[0] / x)) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
+    window.bind('<Left>', lambda _: (update_index_frame_from_button(-1) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
+    window.bind('<Right>', lambda _: (update_index_frame_from_button(1) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
+    window.bind('<Down>', lambda _: (update_index_frame_from_button(ceil(sheet.sheet_size()[0] / x)) if sheet.sheet != None and 'entry' not in str(window.focus_get()) else ''))
 
     ##################################################################################################################################
     #sidebar

@@ -338,8 +338,8 @@ def update_index_frame_from_button(increment: int):
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
-    update_previews()
-    render()
+    if mode[0] != 'over' and mode[0] != 'whl':
+        render()
 
 def update_index_frame_from_entry(event):
     try:
@@ -347,9 +347,8 @@ def update_index_frame_from_entry(event):
     except:
         return messagebox.showerror('Error', 'Invalid Index')
 
-
-    update_previews()
-    render()
+    if mode[0] != 'over' and mode[0] != 'whl':
+        render()
 
 def open_sheet(clipboard=False):
     global sheet, opened_file
@@ -400,8 +399,6 @@ def open_sheet(clipboard=False):
     for widg in picture_widgets:    widg.state(('!disabled',))
 
     update_index_frame_from_entry(None)
-    update_previews()
-    render()
 
 def open_mask(clipboard=False):
     global mask_sheet
@@ -448,8 +445,6 @@ def open_mask(clipboard=False):
     mask_check.state(('!disabled',))
 
     update_index_frame_from_entry(None)
-    update_previews()
-    render()
 
 def close_sheets():
     seek_index.set_num(0)

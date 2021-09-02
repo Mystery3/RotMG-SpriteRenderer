@@ -530,7 +530,7 @@ def update_render_image():
             gif_frame = ImageTk.PhotoImage(rendered_images[1])
             rendered_image.create_image(0, 0, image=gif_frame, anchor=NW)
 
-            gif_timer.interval = float(gif_speed_entry.get()) / 1000 - (float(gif_speed_entry.get()) / 10000)
+            gif_timer.interval = float(gif_speed_entry.get()) / 1000
             gif_timer.start()
 
 def update_render_gif():

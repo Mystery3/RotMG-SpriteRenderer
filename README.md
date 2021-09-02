@@ -25,6 +25,7 @@ A replacement for Tuvior's Tool
    - Control + Shift + V pastes a sheet into the tool as the mask sheet
    - Arrow Keys are used for seeking
    - Pressing Enter in any entry field renders
+   - Pressing Escape removes focus from an entry field if you are in one
 
 # Modes
 All renders have a 1-pixel solid black outline

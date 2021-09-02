@@ -12,7 +12,7 @@ A replacement for Tuvior's Tool
 - GIFs are previewed before saving
 - Images that would extend beyond the window are instead displayed in a separate window
 - Copying Image to clipboard
-- Pasting Image from clipboard as the main sheet (due to clipboard limitations, not all images work, images from Chrome and PAINT.net will work, from discord will not)
+- Pasting Image from clipboard as the main or mask sheet (due to clipboard limitations, not all images work, images from Chrome and PAINT.net will work, from discord will not)
 - Transparent Background for GIFs (without shadows)
 - Shortcuts for opening sheets, rendering, closing sheets, copying, and pasting
    - Control + O prompts you to open a sheet
@@ -21,6 +21,9 @@ A replacement for Tuvior's Tool
    - Control + / closes the open sheets
    - Control + C copies the first frame of the current render
    - Control + V pastes a sheet into the tool as the main sheet
+      - Control + V can paste a cloth texture if the cloth window is open
+   - Control + Shift + V pastes a sheet into the tool as the mask sheet
+   - Arrow Keys are used for seeking
    - Pressing Enter in any entry field renders
 
 # Modes

@@ -406,7 +406,7 @@ def open_sheet(clipboard=False):
     file_name.config(text=opened_file.rpartition('/')[2], width=len(opened_file.rpartition('/')[2]))
     file_size.config(text='{}x{}'.format(image.size[0], image.size[1]), width=len('{}x{}'.format(image.size[0], image.size[1])))
 
-    update_index_frame_from_entry(None)
+    render()
 
 def open_mask(clipboard=False):
     global mask_sheet, opened_mask
@@ -456,7 +456,7 @@ def open_mask(clipboard=False):
     for widg in picture_widgets:    widg.state(('!disabled',))
     mask_check.state(('!disabled',))
 
-    update_index_frame_from_entry(None)
+    render()
 
 def close_sheets():
     global frame, gif_run
@@ -694,7 +694,7 @@ def check_file():
             file_last_modified = getmtime(opened_file)
         
             sheet = sheet_handler(Image.open(opened_file))
-            update_index_frame_from_entry(None)
+            render()
 
     except Exception as e:
         show_error('Error reloading sheet: {}'.format(str(e)))
@@ -712,7 +712,7 @@ def check_mask():
             mask_last_modified = getmtime(opened_mask)
         
             mask_sheet = sheet_handler(Image.open(opened_mask))
-            update_index_frame_from_entry(None)
+            render()
             
     except Exception as e:
         show_error('Error reloading sheet: {}'.format(str(e)))

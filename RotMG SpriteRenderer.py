@@ -353,13 +353,14 @@ def update_index_frame_from_entry(event):
 def open_sheet(clipboard=False):
     global sheet, opened_file
 
+    forget_remembers()
+
     if clipboard == False:
         opened_file = filedialog.askopenfilename()
         try:
             image = Image.open(opened_file)
             sheet = sheet_handler(image)
 
-            forget_remembers()
             file_remember.state(('!disabled',))
         except:
             show_error('No sheet opened.')
@@ -412,12 +413,13 @@ def open_sheet(clipboard=False):
 def open_mask(clipboard=False):
     global mask_sheet, opened_mask
 
+    mask_remember_timer.stop()
+
     if clipboard == False:
         opened_mask = filedialog.askopenfilename()
         try:
             mask_sheet = sheet_handler(Image.open(opened_mask))
 
-            mask_remember_timer.stop()
             mask_remember.state(('!disabled',))
         except:
             show_error('No sheet opened.')

@@ -359,6 +359,7 @@ def open_sheet(clipboard=False):
             image = Image.open(opened_file)
             sheet = sheet_handler(image)
 
+            forget_remembers()
             file_remember.state(('!disabled',))
         except:
             show_error('No sheet opened.')
@@ -416,6 +417,7 @@ def open_mask(clipboard=False):
         try:
             mask_sheet = sheet_handler(Image.open(opened_mask))
 
+            mask_remember_timer.stop()
             mask_remember.state(('!disabled',))
         except:
             show_error('No sheet opened.')
@@ -464,9 +466,8 @@ def close_sheets():
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
+    forget_remembers()
     mask_check.state(('disabled', '!selected'))
-    file_remember.state(('disabled',))
-    mask_remember.state(('disabled',))
     for widg in picture_widgets:    widg.state(('disabled',))
 
     sheet.close_sheet()

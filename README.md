@@ -1,19 +1,19 @@
 # RotMG-Sprite-Renderer
-
 A replacement for Tuvior's Tool
 
 # Features
-
 - Previewing both sheets and rendering
 - Seek feature that allows you to scroll through larger sheets along with manual hex input
 - Mask, bg, and shadow toggles
 - Custom background color, default is set to discord's bg color
 - Clothing and accessory mask options, can select a custom color, select from a list of cloths, or upload your own cloth
 - GIFs are previewed before saving
+- Dynamic GIF length
 - Images that would extend beyond the window are instead displayed in a separate window
 - Copying Image to clipboard
 - Pasting Image from clipboard as the main or mask sheet (due to clipboard limitations, not all images work, images from Chrome and PAINT.net will work, from discord will not)
 - Transparent Background for GIFs (without shadows)
+- "Subscribe" Feature that allows changes you make to a file to automatically be rendered
 - Shortcuts for opening sheets, rendering, closing sheets, copying, and pasting
    - Control + O prompts you to open a sheet
    - Control + M prompts you to open a mask sheet

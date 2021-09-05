@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-from tkinter import filedialog, colorchooser, messagebox, font, PhotoImage
+from tkinter import filedialog, colorchooser, font, PhotoImage
 from PIL import Image, ImageFilter, ImageTk, ImageDraw
 from math import ceil, floor
 from threading import Timer
@@ -8,6 +8,7 @@ from imageio import mimsave, imread
 from io import BytesIO
 from base64 import b64decode
 from datetime import datetime
+from os.path import getmtime
 import win32clipboard
 
 #class for sheets
@@ -154,7 +155,7 @@ class index:
         self.num = num
 
     def hex_to_int(self, hex: str) -> None:
-        self.num = int(hex[2:], 16)
+        self.num = int('0' + hex.lstrip('0').lstrip('x'), 16)
 
 #class for gif driving
 class repeated_timer:
@@ -178,10 +179,8 @@ class repeated_timer:
             self.is_running = True
 
     def stop(self):
-        global frame
         self._timer.cancel()
         self.is_running = False
-        frame = 0
 
 #class for image previewing
 class preview_image:
@@ -190,8 +189,8 @@ class preview_image:
     
     def update_image(self, image: Image):
         #resize image, paste outline
-        sized_image = image.convert('RGBA').resize((int(image.size[0] * 50 / x), int(image.size[1] * 50 / y)), resample = Image.BOX) #size is 50 times the size divided by size (size is constant while keeping image dimensions)
-        sized_image.alpha_composite(Image.open(BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x006\x00\x00\x006\x08\x06\x00\x00\x00\x8cEj\xdd\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x04gAMA\x00\x00\xb1\x8f\x0b\xfca\x05\x00\x00\x00\tpHYs\x00\x00\x0e\xc3\x00\x00\x0e\xc3\x01\xc7o\xa8d\x00\x00\x00\xf9IDAThC\xed\xdaM\x0e\x820\x14\x04\xe0\xa2;\xe3\x92\x0bx\xffCi\xbc\x83\xae\xfc{SZ\x84\x94\x12\xbb1\xbeq\xbe\x80\xd6R\x0b\x13*4\x86\xee\x19\x82-\xa5..\xa5\xd6\xf6\xb0\xf4\x9d\x95\xfeo\xf6\xb6\xb5\xf5\x14+\x12k|H\xc5\x99\xd47\xda\xeem\xedQ\x07?\x15\xcc\x1a\xa1\xee1|\x9a\xab\xf5_;\x9e\xb8\xa1\xba\xd1\t;\xf8\xde\xd6]*\x0fy\xc6\x02\t\x0brA\x9eM\xfa\xcc\xe4\x8a\x97\xf17V\x1b\xc3\xde\xe4<""2E{\xb9g\xbcAG\x08v\x1e\x8a4b\x1e\xea3F\x89\xfa\xe2qG\x81\xc8;\x8fE\xa48[\x19[\x1e\x11\xf9"M\x82\xbdQ0o\x14LDD\\\xb3\x89\xd51\xcf\xaf\x18\xe4<\xbaA{\xa3`\xdeh\xae("\xf2\x17\xf4\xbf\xa27\xb4\xc1\xc6\xa18U\x1b\x96Kmam\x187\xf6\xdf\xf4<p\xb6\xb8\x8f\xc6\x1d\x17m\xa1\xd6\x1e>\xed\xdf\x1a\xa1\xae\xe9y\xe0\xac\xdcG\x08/\xd1\xcc_\x8a\x96-Ty\x00\x00\x00\x00IEND\xaeB`\x82')), (48, 48))
+        sized_image = image.convert('RGBA').resize((int(image.size[0] * 40 / x), int(image.size[1] * 40 / y)), resample = Image.BOX) #size is 40 times the size divided by size (size is constant while keeping image dimensions)
+        sized_image.alpha_composite(Image.open(BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x006\x00\x00\x006\x08\x06\x00\x00\x00\x8cEj\xdd\x00\x00\x00\x01sRGB\x00\xae\xce\x1c\xe9\x00\x00\x00\x04gAMA\x00\x00\xb1\x8f\x0b\xfca\x05\x00\x00\x00\tpHYs\x00\x00\x0e\xc3\x00\x00\x0e\xc3\x01\xc7o\xa8d\x00\x00\x00\xf9IDAThC\xed\xdaM\x0e\x820\x14\x04\xe0\xa2;\xe3\x92\x0bx\xffCi\xbc\x83\xae\xfc{SZ\x84\x94\x12\xbb1\xbeq\xbe\x80\xd6R\x0b\x13*4\x86\xee\x19\x82-\xa5..\xa5\xd6\xf6\xb0\xf4\x9d\x95\xfeo\xf6\xb6\xb5\xf5\x14+\x12k|H\xc5\x99\xd47\xda\xeem\xedQ\x07?\x15\xcc\x1a\xa1\xee1|\x9a\xab\xf5_;\x9e\xb8\xa1\xba\xd1\t;\xf8\xde\xd6]*\x0fy\xc6\x02\t\x0brA\x9eM\xfa\xcc\xe4\x8a\x97\xf17V\x1b\xc3\xde\xe4<""2E{\xb9g\xbcAG\x08v\x1e\x8a4b\x1e\xea3F\x89\xfa\xe2qG\x81\xc8;\x8fE\xa48[\x19[\x1e\x11\xf9"M\x82\xbdQ0o\x14LDD\\\xb3\x89\xd51\xcf\xaf\x18\xe4<\xbaA{\xa3`\xdeh\xae("\xf2\x17\xf4\xbf\xa27\xb4\xc1\xc6\xa18U\x1b\x96Kmam\x187\xf6\xdf\xf4<p\xb6\xb8\x8f\xc6\x1d\x17m\xa1\xd6\x1e>\xed\xdf\x1a\xa1\xae\xe9y\xe0\xac\xdcG\x08/\xd1\xcc_\x8a\x96-Ty\x00\x00\x00\x00IEND\xaeB`\x82')).resize((41, 41), Image.BOX), (39, 39))
         photo_image = ImageTk.PhotoImage(sized_image)
 
         self.label.config(image=photo_image)
@@ -223,6 +222,8 @@ class color_picker:
         if (new_color := colorchooser.askcolor('#ffffff')[1]) != None:
             self.set_image(Image.new('RGBA', (10, 10), new_color))
 
+        self.selection_window.focus_set()
+
     def choose_cloth(self):
         b64_cloths = [b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAF0lEQVR4nGP8//8/AzGAiShVowqpphAA1RIDEZR7aoQAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFTU1NmZmZBC4lqQAAABFJREFUeJxjCHVgWNXAgIMEAH9TCLzkBdSkAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAgMAAADwAc52AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFNQlPbBOgAwugaLCN6gAAABdJREFUeJxjkGJg8HBgWOjA0NLAIMYAABKbAp7dfVT4AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAMAAAC6sdbXAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAD9QTFRFc3NzOTNHR0YvPUc6MUk4OEJHKzgwNFxwTUQXQEcvMVFgP0c7Y3ppVkodZmhzMywqZmBePU9/RztDRzdAOjQwPoOYmwAAACZJREFUeJxjYGBkYmZhYGVj5+BkYODi5uFl4ODjF2BnEBTiEBYBAAmYAOrM5quqAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFBAMAAAB/QTvWAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFWysLWzMLWyAIwZM5updm18AGKQAAABhJREFUeJxjYAACQUEBBiUlBQYTEwcQBgAL4wHnJ4dSPwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAgMAAADUn3btAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAlQTFRFAAAAADx4b0MXUjUhKAAAABBJREFUeJxjEGJoYVBk8AAAA8UBAGPzOUIAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAA9QTFRFa1szhGkfJ0VMFltmtQAA3Gvk0AAAABRJREFUeJxjYGBgEBRkUFZmcHEBAAMSAPGtRs5jAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAA999rySy9mgAAAA5JREFUeJxjYAACBQYGAABoACEO48ZHAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFb23LAAAAnCveuwAAAAxJREFUeJxjCGAAQwAFCAFBQtVWSQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAgMAAADwXCcuAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAH7T29v/ADx4AGnTEzcLwwAAACZJREFUeJxjEFtQwMC6QoDBMYsBjEFssQUODFGNDAxZLAJgDGQDAKK4B5//az36AAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRF88RJ/+5Z1IY9Ym6MdI2zo73ZQkhmAKnDwgAAADNJREFUeJxjYBQEAgYhExcXIwZhF0dXZxDpAiQNGAWNGYTNEtOApLGhMYI0A5JCxsbGRgD7ZgjJpOI9/gAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABJQTFRFgi8gwRkZwVxVWSAWc3Nzt8GFcgbo6gAAAB5JREFUeJxjYGAQFFRiwCSNjRkYXFBIFxclpVBkEgCGYAZyLymKYAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAgMAAACd/+6DAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAxQTFRFAAAAIJv/uf+z////rxwV9QAAACVJREFUeJxjYBBgYFAoYWBgEHBgAAEWDgYGWRDNCCTYHRgYGRkAH9ABbLrxs9EAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFPxgA////RFB+KztbZXqgAP//n7rMfQkbcwAAADNJREFUeJxjYBAUYGBgYFRSAJFGSiAOk4oDkGQIcUoAsllcgKQCg0oCAxMDQxoDA0gBAwBhggPsOHDfnwAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJAQMAAADaX5RTAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFMKTy////CGt/CgAAABtJREFUeJxjYGBgYGZgYG8AISBIYGD4AEYMDAAjMwNSwdMtOQAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFAAD/lgD03h0d/64M/+oMDP9IYf/ncdl+vQAAAC5JREFUeJxjYFR2TWBgEDIJY2BgADEFGIBMRgUGIFPIgAHIVHZgADJNAhgYEEoBubgG5YKCELsAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFAQMAAAC3obSmAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAB4////C1IXrgAAABJJREFUeJxjMGCQYOhgOMCQAAAHqgHxkZYmYgAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKBAMAAAB/HNKOAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAABVQTFRFGcTqoB5qhxlZkRtg3bgjwSSAADsQE5sPfQAAADdJREFUeJxjYIACQRChaCziwMCqJOzIwMAaJGIswMAQpCgMJEOVFBkYElJDVRkY2BhYA0AkEAAAfS4EsT2ccyoAAAAASUVORK5CYII=', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRF/9voAAAArE01nAAAAA5JREFUeJxjYGD4wADEAAWoAeH1ZN1mAAAAAElFTkSuQmCC', b'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEAQMAAACTPww9AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAAAQB4+nsq9gAAAAxJREFUeJxjSGAAQwAGCAGBFZY4EAAAAABJRU5ErkJggg==', b'iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKAQMAAAC3/F3+AAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAZQTFRFAAAAYf+LBTy/AgAAAB9JREFUeJxjCGlgiGlgAILbDgyeYHTSAcS928AQ0gAAZgkHGDG1EzEAAAAASUVORK5CYII=']
         button_images, actual_images = [], []
@@ -250,7 +251,9 @@ class color_picker:
             image = Image.open(filedialog.askopenfilename())
             self.set_image(image)
         except Exception as e:
-            messagebox.showwarning('Warning', 'No Cloth Uploaded: ' + str(e))
+            show_error('No Cloth Uploaded: {}'.format(str(e)))
+
+        self.selection_window.focus_set()
 
     def upload_from_clipboard(self):
         win32clipboard.OpenClipboard()
@@ -261,17 +264,18 @@ class color_picker:
         #check if dibv5 format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
-            messagebox.showwarning('Warning', 'Possible malformed cloth due to invalid format.')
+            show_error('Possible malformed cloth due to invalid format.')
             image = Image.open(data)
         #check if dib format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
-            messagebox.showwarning('Warning', 'Possible malformed cloth due to invalid format.')
+            show_error('Possible malformed cloth due to invalid format.')
             image = Image.open(data)
         #no valid formats
         else:
             win32clipboard.CloseClipboard()
-            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+            show_error('Unable to get image from clipboard.')
+            return
         win32clipboard.CloseClipboard()
 
         self.set_image(image)
@@ -296,13 +300,13 @@ class color_picker:
         #main buttons
         buttons = Frame(self.selection_window)
 
-        choose_color = Button(buttons, text='Choose Color', command=self.choose_color)
+        choose_color = Button(buttons, text='Choose Color', command=self.choose_color, style='cloth.TButton')
         choose_color.grid(row=0, column=0)
 
-        choose_cloth = Button(buttons, text='Choose Cloth', command=self.choose_cloth)
+        choose_cloth = Button(buttons, text='Choose Cloth', command=self.choose_cloth, style='cloth.TButton')
         choose_cloth.grid(row=1, column=0)
 
-        upload_cloth = Button(buttons, text='Upload Cloth', command=self.upload_cloth)
+        upload_cloth = Button(buttons, text='Upload Cloth', command=self.upload_cloth, style='cloth.TButton')
         upload_cloth.grid(row=2, column=0)
 
         buttons.grid(row=0, column=1)
@@ -342,13 +346,9 @@ def update_index_frame_from_button(increment: int):
         render()
 
 def update_index_frame_from_entry(event):
-    try:
-        if int(seek_entry.get()[2:], 16) > -1:    seek_index.hex_to_int(seek_entry.get())
-    except:
-        return messagebox.showerror('Error', 'Invalid Index')
+    if int('0' + seek_entry.get().lstrip('0').lstrip('x'), 16) > -1:    seek_index.hex_to_int(seek_entry.get())
 
-    if mode[0] != 'over' and mode[0] != 'whl':
-        render()
+    if mode[0] != 'over' and mode[0] != 'whl':    render()
 
 def open_sheet(clipboard=False):
     global sheet, opened_file
@@ -356,9 +356,13 @@ def open_sheet(clipboard=False):
     if clipboard == False:
         opened_file = filedialog.askopenfilename()
         try:
-            sheet = sheet_handler(Image.open(opened_file))
+            image = Image.open(opened_file)
+            sheet = sheet_handler(image)
+
+            file_remember.state(('!disabled',))
         except:
-            return messagebox.showwarning('Warning', 'No sheet opened.')
+            show_error('No sheet opened.')
+            return
 
     else:
         #exit if entry has focus
@@ -372,18 +376,19 @@ def open_sheet(clipboard=False):
             image = Image.open(data)
         #check if dibv5 format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
-            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            show_error('Incorrect clipboard format, Pasted image will have a black background.')
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
             image = Image.open(data)
         #check if dib format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
-            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            show_error('Incorrect clipboard format, Pasted image will have a black background.')
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
             image = Image.open(data)
         #no valid formats
         else:
             win32clipboard.CloseClipboard()
-            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+            show_error('Unable to get image from clipboard.')
+            return
         win32clipboard.CloseClipboard()
 
         opened_file = 'unknown.png'
@@ -398,17 +403,23 @@ def open_sheet(clipboard=False):
 
     for widg in picture_widgets:    widg.state(('!disabled',))
 
+    file_name.config(text=opened_file.rpartition('/')[2], width=len(opened_file.rpartition('/')[2]))
+    file_size.config(text='{}x{}'.format(image.size[0], image.size[1]), width=len('{}x{}'.format(image.size[0], image.size[1])))
+
     update_index_frame_from_entry(None)
 
 def open_mask(clipboard=False):
-    global mask_sheet
+    global mask_sheet, opened_mask
 
     if clipboard == False:
-        opened_file = filedialog.askopenfilename()
+        opened_mask = filedialog.askopenfilename()
         try:
-            mask_sheet = sheet_handler(Image.open(opened_file))
+            mask_sheet = sheet_handler(Image.open(opened_mask))
+
+            mask_remember.state(('!disabled',))
         except:
-            return messagebox.showwarning('Warning', 'No sheet opened.')
+            show_error('No sheet opened.')
+            return
     else:
         #exit if entry has focus or main sheet not loaded
         if 'entry' in str(window.focus_get()) or sheet.sheet == None:
@@ -421,18 +432,19 @@ def open_mask(clipboard=False):
             image = Image.open(data)
         #check if dibv5 format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIBV5):
-            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            show_error('Incorrect clipboard format, Pasted image will have a black background.')
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIBV5))
             image = Image.open(data)
         #check if dib format available
         elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_DIB):
-            messagebox.showwarning('Warning', 'Incorrect clipboard format, Pasted image will have a black background.')
+            show_error('Incorrect clipboard format, Pasted image will have a black background.')
             data = BytesIO(win32clipboard.GetClipboardData(win32clipboard.CF_DIB))
             image = Image.open(data)
         #no valid formats
         else:
             win32clipboard.CloseClipboard()
-            return messagebox.showerror('Error', 'Unable to get image from clipboard.')
+            show_error('Unable to get image from clipboard.')
+            return
         win32clipboard.CloseClipboard()
 
         mask_sheet = sheet_handler(image) 
@@ -447,11 +459,14 @@ def open_mask(clipboard=False):
     update_index_frame_from_entry(None)
 
 def close_sheets():
+    global frame, gif_run
     seek_index.set_num(0)
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
     mask_check.state(('disabled', '!selected'))
+    file_remember.state(('disabled',))
+    mask_remember.state(('disabled',))
     for widg in picture_widgets:    widg.state(('disabled',))
 
     sheet.close_sheet()
@@ -463,6 +478,7 @@ def close_sheets():
     rendered_image.delete('all')
 
     gif_timer.stop()
+    frame, gif_run = 0, False
 
 def bg_color_chooser():
     global bg_color_image
@@ -472,6 +488,7 @@ def bg_color_chooser():
     bg_color_image = ImageTk.PhotoImage(Image.new('RGB', (20, 20), bg_var.get()))
     bg_color_label.config(image=bg_color_image)
 
+    window.focus_set()
     render()
 
 def update_mode(new_mode):
@@ -480,11 +497,13 @@ def update_mode(new_mode):
     render()
 
 def update_render_image():
-    global rendered_display, gif_frame, too_large, oversize_preview, oversize_preview_image
+    global rendered_display, gif_frame, too_large, oversize_preview, oversize_preview_image, gif_run, frame
     gif_timer.stop()
+    frame, gif_run = 0, False
     rendered_image.delete('all')
 
-    if rendered_images[0].size[0] > (int(width/2.4)) or rendered_images[0].size[1] > (int(height/1.35)): #800x800 on 1080p
+    #if too big
+    if rendered_images[0].size[0] > (int(width/3.254)) or rendered_images[0].size[1] > (int(height/1.8305)): #590x590 on 1080p
         #too large canvas
         try:    oversize_preview.destroy()
         except: pass
@@ -493,11 +512,12 @@ def update_render_image():
 
         oversize_preview = Toplevel()
         oversize_preview.title('Render Preview')
-        oversize_preview.geometry('{}x{}'.format(int(width/2.353), int(height/1.319))) #815x815 on 1080p
+        oversize_preview.geometry('{}x{}'.format(int(width/3.2), int(height/1.8))) #600x600 on 1080p
+        oversize_preview.resizable(False, False)
         oversize_preview.configure(bg='#36393e')
 
         oversize_preview_image = ImageTk.PhotoImage(rendered_images[0])
-        oversize_canvas = Canvas(oversize_preview, bg='#36393e', relief=FLAT, highlightthickness=0, width=int(width/2.39), height=int(height/1.34), scrollregion=(0, 0, rendered_images[0].size[0], rendered_images[0].size[1])) #815x815 on 1080p
+        oversize_canvas = Canvas(oversize_preview, bg='#36393e', relief=FLAT, highlightthickness=0, width=int(width/3.268), height=int(height/1.839), scrollregion=(0, 0, rendered_images[0].size[0], rendered_images[0].size[1])) #590x590 on 1080p
         oversize_canvas.create_image(0, 0, image=oversize_preview_image, anchor=NW)
         oversize_canvas.grid(row=0, column=0)
 
@@ -509,8 +529,6 @@ def update_render_image():
 
         oversize_canvas.config(xscrollcommand=horiz_scroll.set, yscrollcommand=vert_scroll.set)
 
-        gif_timer.stop()
-
         too_large = Image.new('RGBA', (300, 100), (0, 0, 0, 0))
         draw = ImageDraw.Draw(too_large)
         draw.text((0, 0), 'Image too large for preview', '#d6d7d8')
@@ -519,51 +537,66 @@ def update_render_image():
         rendered_image.config(width=300, height=100)
         rendered_image.create_image(0, 0, image=too_large, anchor=NW)
 
+    #normally
     else:
+        #for images
         if modes[mode_var.get()][0] == 'png' or modes[mode_var.get()][0] == 'over' or modes[mode_var.get()][0] == 'whl':
             rendered_image.config(width=rendered_images[0].size[0], height=rendered_images[0].size[1])
             rendered_display = ImageTk.PhotoImage(rendered_images[0])
             rendered_image.create_image(0, 0, image=rendered_display, anchor=NW)
 
+        #for gifs
         else:
             rendered_image.config(width=rendered_images[0].size[0], height=rendered_images[0].size[1])
             gif_frame = ImageTk.PhotoImage(rendered_images[1])
             rendered_image.create_image(0, 0, image=gif_frame, anchor=NW)
 
-            gif_timer.interval = float(gif_speed_entry.get()) / 1000
+            gif_timer.interval = gif_speed_list[0] / 1000
             gif_timer.start()
+            frame, gif_run = 0, True
 
 def update_render_gif():
-    global frame, gif_frame
+    global frame, gif_frame, gif_timer, animation_speed_index
+    if gif_run == False:    return
 
     rendered_image.delete('all')
     gif_frame = ImageTk.PhotoImage(rendered_images[frame])
     rendered_image.create_image(0, 0, image=gif_frame, anchor=NW)
-    if frame == len(rendered_images)-1:    frame = 0
+
+    gif_timer.interval = gif_speed_list[animation_speed_index % len(gif_speed_list)] / 1000
+
+    animation_speed_index+= 1
+
+    if frame == len(rendered_images) - 1:    frame = 0
     else:    frame+= 1
 
 def save_as_image():
     if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
-        return messagebox.showerror('Error', 'File not saved, invalid path.')
+        show_error('File not saved, invalid path.')
+        return
     try:
         rendered_images[0].save(file_path, 'PNG')
     except Exception as e:
-        return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
+        show_error('File not saved, no render: {}'.format(str(e)))
+        return
 
 def save_as_gif():
     #exit if wrong mode or invalid file path
     if not (mode[0] == 'gif' or mode[0] == 'ani'):
-        return messagebox.showerror('Error', 'Wrong mode.')
+        show_error('Wrong Mode.')
+        return
 
     if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
-        return messagebox.showerror('Error', 'File not saved, invalid path.')
+        show_error('File not saved, invalid path.')
+        return
 
     try:
         gif_bytes = BytesIO()
 
         if 'selected' in bg_check.state():
-            mimsave(gif_bytes, frames, format='GIF', duration=float(gif_speed_entry.get()) / 1000)
+            mimsave(gif_bytes, frames, format='GIF', duration=500 / 1000)
 
+        #change bytes to make the bg color the transparency index of each palette
         else:
             temp_rendered_images = []
 
@@ -582,7 +615,7 @@ def save_as_gif():
 
                     temp_rendered_images.append(temp_image.copy())
 
-            temp_rendered_images[0].save(gif_bytes, 'GIF', loop=0, append_images=temp_rendered_images[1:], save_all=True, include_color_table=True, optimize=False, duration=int(gif_speed_entry.get()))
+            temp_rendered_images[0].save(gif_bytes, 'GIF', loop=0, append_images=temp_rendered_images[1:], save_all=True, include_color_table=True, optimize=False, duration=500)
 
             buffer = gif_bytes.getbuffer()
             graphic_control_indexes, palette_indexes, transparent_indexes = [], [], []
@@ -604,22 +637,40 @@ def save_as_gif():
                 buffer[graphic_control_indexes[i] + 3] = buffer[graphic_control_indexes[i] + 3] + 1 + 8 #+1 for transparent color flag and +8 for disposal method 2
                 buffer[graphic_control_indexes[i] + 6] = transparent_indexes[i]
 
+        #change bytes to use custom animation lengths
+        animation_length_index = 0
+        buffer = gif_bytes.getbuffer()
+
+        for i in range(0, len(buffer) - 7):
+            if hex(buffer[i]) + hex(buffer[i + 1]) + hex(buffer[i + 2]) == '0x210xf90x4':
+                speed = bin(int(gif_speed_list[animation_length_index % len(gif_speed_list)] / 10))[2:]
+                
+                if len(speed) > 16:    raise Exception('GIF Speed too high.')
+
+                speed = speed.zfill(16)
+
+                buffer[i + 4] = int('0b' + speed[8:16], 0)
+                buffer[i + 5] = int('0b' + speed[0:8], 0)
+
+                animation_length_index+= 1
+
         with open(file_path, 'wb') as file:
             file.write(gif_bytes.getvalue())
 
     except Exception as e:
-        return messagebox.showerror('Error', 'File not saved, no render: {}'.format(str(e)))
+        show_error('File not saved, no render: {}'.format(str(e)))
+        return
 
 def send_image_to_clipboard():
     if 'entry' in str(window.focus_get()):
         return
 
     if len(rendered_images) == 0:
-        messagebox.showerror('Error', 'Nothing rendered yet.')
+        show_error('Nothing rendered yet.')
         return
 
     if mode[0] == 'gif' or mode[0] == 'ani':
-        messagebox.showwarning('Error', 'GIFs cannot be copied to the clipboard, only the first frame is copied.')
+        show_error('GIFs cannot be copied to the clipboard, only the first frame is copied.')
 
     bmp_buffer, png_buffer = BytesIO(), BytesIO()
     rendered_images[0].convert('RGBA').save(bmp_buffer, 'BMP')
@@ -631,34 +682,122 @@ def send_image_to_clipboard():
     win32clipboard.SetClipboardData(png_format, png_buffer.getvalue())
     win32clipboard.CloseClipboard()
 
+def start_check_file():
+    file_remember.state(('disabled',))
+    no_remember.state(('!disabled',))
+    file_remember_timer.start()
+
+def check_file():
+    global file_last_modified, sheet
+    try:
+        if file_last_modified != getmtime(opened_file):
+            file_last_modified = getmtime(opened_file)
+        
+            sheet = sheet_handler(Image.open(opened_file))
+            update_index_frame_from_entry(None)
+
+    except Exception as e:
+        show_error('Error reloading sheet: {}'.format(str(e)))
+        forget_remembers()
+
+def start_check_mask():
+    mask_remember.state(('disabled',))
+    no_remember.state(('!disabled',))
+    mask_remember_timer.start()
+
+def check_mask():
+    global mask_last_modified, mask_sheet
+    try:
+        if mask_last_modified != getmtime(opened_mask):
+            mask_last_modified = getmtime(opened_mask)
+        
+            mask_sheet = sheet_handler(Image.open(opened_mask))
+            update_index_frame_from_entry(None)
+            
+    except Exception as e:
+        show_error('Error reloading sheet: {}'.format(str(e)))
+        forget_remembers()
+
+def forget_remembers():
+    file_remember.state(('disabled',))
+    mask_remember.state(('disabled',))
+    no_remember.state(('disabled',))
+    file_remember_timer.stop()
+    mask_remember_timer.stop()
+
+def entry_fixer(new_string, change_type, widget_config=None):
+    valid_set = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
+    string = new_string
+
+    #deletions always allowed
+    if change_type == '0':
+        return True
+
+    #include hex
+    if widget_config == 'seek':
+        valid_set.update({'a', 'b', 'c', 'd', 'e', 'f'})
+        
+        #ignore 0x if present
+        if string[0:2] == '0x':
+            string = new_string[2:]
+    
+    #include commas
+    elif widget_config == 'comma':
+        valid_set.update({','})
+
+    #iterate
+    for char in string:
+        if char not in valid_set:
+            return False
+
+    return True
+
+#info bar functions
+def show_error(text):
+    error_message.config(text=' ' + text)
+    error_message.pack(fill=X)
+
 #rendering functions
 def render():
-    global x, y
+    global x, y, scale, frame, gif_run
     try:    win32clipboard.CloseClipboard()
     except:    pass
 
-    try:
+    #x, y, scale
+    if width_entry.get() == '':
+        show_error('Invalid Width, using 8.')
+        x = 8
+    else:
         x = int(width_entry.get())
+
+    if height_entry.get() == '':
+        show_error('Invalid Height, using 8.')
+        y = 8
+    else:
         y = int(height_entry.get())
-    except:
-        messagebox.showerror('Error', 'Invalid width/height.')
+
+    if scale_entry.get() == '':
+        show_error('Invalid Scale, using 5.')
+        scale = 5
+    else:
+        scale = int(scale_entry.get())
 
     try:
         gif_timer.stop()
+        frame, gif_run = 0, False
         if mode[0] == 'gif':    render_gif(modes[mode_var.get()][1])
-        elif mode[0] == 'ani':    render_animation(animation_length_entry.get())
+        elif mode[0] == 'ani':    render_animation()
         elif mode[0] == 'over':    render_overview(modes[mode_var.get()][1])
         elif mode[0] == 'whl':    render_whole()
         else:    render_image()
     except Exception as e:
-        messagebox.showerror('Error', 'Rendering error: ' + str(e))
+        show_error('Rendering error: {}'.format(str(e)))
 
     update_previews()
     update_render_image()
 
 def render_image():
     global rendered
-    scale = int(scale_entry.get())
     if not 'selected' in mask_check.state():
         rendered_images.clear()
 
@@ -675,9 +814,8 @@ def render_image():
         rendered_images.append(rendered)
 
 def render_gif(rows):
-    global rendered_images, frames
+    global rendered_images, frames, gif_speed_list
     rendered_images.clear()
-    scale = int(scale_entry.get())
 
     if 'selected' in bg_check.state():
         gif_base = Image.new('RGBA', (4 * (x + 2) * scale, rows * (y + 2) * scale), bg_var.get())
@@ -759,13 +897,47 @@ def render_gif(rows):
         frames.append(imread(buffer.getvalue(), format='PNG-PIL'))
         frame+= 1
 
-def render_animation(length):
-    global rendered_images, frames
+    gif_speed_list = []
+
+    if gif_speed_entry.get() == '':
+        show_error('Invalid GIF Speed, using 500.')
+        gif_speed_list.append(500)
+
+    else:
+        try:
+            if ',' in gif_speed_entry.get():
+                partitioned = gif_speed_entry.get().partition(',')
+                for _ in range(list(gif_speed_entry.get()).count(',')):
+                    left_string = partitioned[0]
+                    right_string = partitioned[2]
+
+                    partitioned = right_string.partition(',')
+                    gif_speed_list.append(float('0' + left_string))
+
+                gif_speed_list.append(float('0' + right_string))
+            else:
+                gif_speed_list.append(float('0' + gif_speed_entry.get()))
+
+        except:
+            show_error('Invalid GIF Speed, using 500.')
+            gif_speed_list = []
+            gif_speed_list.append(500)
+
+        if 0 in gif_speed_list:
+            show_error('Value(s) of 0 in GIF Speeds, using 500 in their place(s).')
+            gif_speed_list = [500 if speed == 0 else speed for speed in gif_speed_list]
+
+def render_animation():
+    global rendered_images, frames, gif_speed_list
     rendered_images.clear()
-    length = int(length)
-    scale = int(scale_entry.get())
     start_index = seek_index.num
     animation_frames, frames = [], []
+
+    if animation_length_entry.get() == '':
+        show_error('Invalid Animation Length, using 0.')
+        length = 0
+    else:
+        length = int(animation_length_entry.get())
 
     if length == 0:
         length = int(sheet.sheet_size()[0] / x) * int(sheet.sheet_size()[1] / y)
@@ -775,7 +947,7 @@ def render_animation(length):
     else:
         animation_base = Image.new('RGBA', ((x + 2) * scale, (y + 2) * scale), (int(bg_var.get()[1:3], 16), int(bg_var.get()[3:5], 16), int(bg_var.get()[5:7], 16), 0))
     
-    for garb in range(length):
+    for _ in range(length):
         animation_frames.append(animation_base.copy())
 
     if not 'selected' in mask_check.state():
@@ -799,10 +971,39 @@ def render_animation(length):
         frames.append(imread(buffer.getvalue(), format='PNG-PIL'))
         frame+= 1
 
+    gif_speed_list = []
+
+    if gif_speed_entry.get() == '':
+        show_error('Invalid GIF Speed, using 500.')
+        gif_speed_list.append(500)
+
+    else:
+        try:
+            if ',' in gif_speed_entry.get():
+                partitioned = gif_speed_entry.get().partition(',')
+                for _ in range(list(gif_speed_entry.get()).count(',')):
+                    left_string = partitioned[0]
+                    right_string = partitioned[2]
+
+                    partitioned = right_string.partition(',')
+                    gif_speed_list.append(float('0' + left_string))
+
+                gif_speed_list.append(float('0' + right_string))
+            else:
+                gif_speed_list.append(float('0' + gif_speed_entry.get()))
+
+        except:
+            show_error('Invalid GIF Speed, using 500.')
+            gif_speed_list = []
+            gif_speed_list.append(500)
+        
+        if 0 in gif_speed_list:
+            show_error('0 Values in GIF Speeds, using 500 in their place.')
+            gif_speed_list = [500 if speed == 0 else speed for speed in gif_speed_list]
+
 def render_overview(skip):
     global rendered_images
     rendered_images.clear()
-    scale = int(scale_entry.get())
     rows = int(sheet.sheet_size()[1]/y)
 
     nonempty_rows = []
@@ -849,7 +1050,6 @@ def render_whole():
 
     rendered_images.clear()
     rendered_image.delete('all')
-    scale = int(scale_entry.get())
 
     whole_sheet_render = Image.new('RGBA', (int(sheet.sheet_size()[0] / x) * (x + 2)*scale, int(sheet.sheet_size()[1] / y) * (y + 2) * scale), (0, 0, 0, 0))
     sheet_length = int(sheet.sheet_size()[0] / x) * int(sheet.sheet_size()[1] / y)
@@ -881,11 +1081,14 @@ if __name__ == '__main__':
     icon = PhotoImage(data=b64decode(b'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'))
     window.wm_iconphoto(True, icon)
 
+    #other icons
+    icons = {'save': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAADCSURBVDhP3ZHNDYJAEIVZKqADbMGzXijBDiyBErAPEu3EEqQELcJ4Ia7v2501RAETjn7Jy8x77GR/yKbw3lcSVBZ9kVtdxL8M64GChoxlkCsspBVGdavykGosmVX8Xd83IdB65mhaqRmEZwmOH5U8bdJILU2PIQQWSBdpCD4MgnqGe+7sYhRxzl2ltdouJlmHJzefcHOvvZMOVkeZHLYTNCM7vknDpe5QWD+LrSvpncyTKp2kG+EPGNxL4efX0gJ8/QIV69UCwifwMQAAAABJRU5ErkJggg==')), 'file': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAD6SURBVDhPpZI9isJQFIUTBVHRRgtLsQiIg0sQ0W4Ke5cxhY2FIIjiAlyAM8wC7CwDtloIljKNreASzHwnLyj+xaAHPu49NznvvfxY78j2PK9LTRh7oT/btn+D/q4UXlE7xl5oDC0W2Bt7K4VdbmgE/iTmQ0oT4v7grB10yWzDwgpl4fqR6uCQGZ3C1CTDuX85XDnQokvt4GqiCgP1z8R9ZdjEAlOlFDhBTz6C2rD0w+gT1qYNFxuVKHqRPwqnIQ8TiKIiLITCFUjBFqKoBvqBjgpn4IB5+DNcSZ91pkafyqNO4VuDJ3Lgg42+ZBTuq4kobTTQkY19WZb1D1MuVfpzok+nAAAAAElFTkSuQmCC')), 'close': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAD3SURBVDhPjZPLDgFBEEWxsmA8FsSC8Af2fCR7hLVXfJHPYNfObVXSHTPiJieTqrrdVT3TUwshNGEOg9ofwteFBRQKtPAOR2iZp1TU67CHByyU6MEBpA20zZuJvBauZUIXGHqhAV44wTgWTMRpgx0UVnqLhDZwwxmigac6el4d84UuCmmHLXQgHXVi1nJhSM/m+h61Shh1hFTZO6gUxqrOHbOUC4POrO8o6ex9WMUohCtMzZqLgl8A6QY9ywvPa4OY/4iEFnoHLZxZKYpYV9I30LNbVtCo+c4m8iJtMFLC7/Zn1CpRF2r0hKUC/6tG5vkpfJp0GUIoXngWr5R33ioRAAAAAElFTkSuQmCC')), 'color': PhotoImage(data=b64decode( b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAAEySURBVDhPjZI/SwNBEEfvJCB2YiNWttFSEA3in8rSQqwlVmkFC7sQW4ONX8DG1m+gpFGwEAW1EkSwEixERFAiru83OxuVxMQHj7mZndlb7jZLhBByXMBNfETxhFWcxkFv/Q0LGtpC8Y4f8bGFNtnDio9EKAzgLooLnMU5y0K4xVVctyyEF6z7qA0vWTnS8JoUO9iP43itgsdiGj60UuQOa664QW2gI//kCEfTG05xBeuW9eYTF9NwzU8xj1r4D80+O3uWTZCMEKcwt0pvCnrbGb55TP+3G+nL21ct4bNlIWxoS+JkTNvx9TJu62EI91FUfXEtph2ZUU8LCkW8Qt2khse/OPCxbygW8Bgf1NEFu0htsKCruoyX6urAK5a9vfNvoWGMMOyW8B7PsZnn+QkRsuwLm69u5nN1jecAAAAASUVORK5CYII=')), 'render': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxMAAAsTAQCanBgAAACPSURBVDhPrZLRDYAgDAU7EiM4iiO4oaM4giPow74WCBUT4iX96JVCEeVqSUKYG+4bWDQOxDLyDZDbUy7khQkRerYVIFfEmVdU5A1Cz7YCZF5Y84yKCD3bCpD/X2HkO+B3LSvUr96BmzsZ+dydkYRfFRF6tsUjge93RjL/POodH0lTpx3V0JrjOzM3+h9CRG6kS1vL4+AfSAAAAABJRU5ErkJggg==')), 'error': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAM1SURBVEhLtZdNSFRRGIa/OzM1IwhlUZvCxEXbwNJaJTo5kVGLCLJFBUEUQUT+BWoKiraohAgsoha1CSJahr9RECRpRdsW7tr0g0mGMzaX6X3PPY5zZ869Xmt84J1z7jdw3/ud/2NJAObjNTEUh6AEtBuqhMqgDDQLzUDT0Cg0XDrxLoXSF19jGG5C0Qqdh1gPwnfoHjSID+BHGTEa/47vRSqZ06gOQptVcPV8gy5LJvOk9OWUE8mhwBhZrkdxFzqrAv8Ps7+E7NPOo4PLWJs+g46oQPF4Dp3INQ/pUubrq1kw02KbkmPQnV91ykORNRbLOoPfYjWviQtWyGrSdccYTcwBxIFkJFxVI9GrPaiEdcRAOCLR9m4J76rSASO34bWRlaWM2yDjdKFprO+mRBoaJdrRZzanaUevRBKHJdY/6Ge+FbrCioUvKEH5BeKC4GLJVKJRHRFJv56Q1MA1Edt2AjTthOn+uPNMkguS7GwW+9MHHXDBabadGTdCBaYk0oDFKseURGrjy5kr0z63KYmVqOw92AIlwh2V25g6l8EC7Mk3EirfIaEKrpDL8DlUXgHDukJTkH41LqkbvVhQuaIa+cGmfo+K94hAZqr/ag/ogD/K9Hr3cleYecumdqeTD16QGuhG347rgDcBTUkljTc4dR8CmK/ClJQtTacAYHW1fDYzv/8M0HjOqfrgNXpzcI32lZmlMTdxb7LztF4HvFmF+QyNeXIwY1ocNOxTU58HNJ+mMY8rRqJtXd7zFAPJa8Ap85ZO/WRkhMYvIOMRJT0xLLLoPj65Rq/XaE8lJT3G1xrhkjkWwua8gMp9FcrDnpqUZE971tw4ZfLNYZrsahX7o2cPDsFzUc0BvS1+hsw7VPU+idQlJHWr322aC1c4NC8z9TH9Cu2E8Vx28sGch7tHztOawePPU1bYxxrrMX4eOvU1YUgyljIlruUGWa9DwcPeURUoHnznSeNhj+CPPyiOQw9UoDjwAOkyJS5j4phnzqF6CuKt4F/hQGqyLetivinxXdnR9BzlLRCvMEFvFPxYZskrzE8VMRBoS8EH8NJ2EOKlbQ/EPVydFkHupW0EGoXhCpc2kb/royGrlMbnKwAAAABJRU5ErkJggg==')), 'remember': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAC+SURBVDhPxZPBCcIwGEZbFXEEdxBxCcFFvDiAKwjiVSiCZ6969OgG4sFlbEp8X1MlRkpaPPjg0Z/kS/jbpIm1NsMcDS6SAMauuMZhlTnjQHMdnGMPu5hiiDKvcWVmeNIG/kQbyg20OMYKj678YJrqPSjUjjjg1pVfjHHnypIiXNyGoknbtfy02G/7gTq2G9YxwT32sdAl0MGLi2ZjKOfi1vht59Uzxjv33w+mNnS377jRYIQljtCEf1VTydvsCSkPmgH2odlFAAAAAElFTkSuQmCC')), 'noremember': PhotoImage(data=b64decode(b'iVBORw0KGgoAAAANSUhEUgAAAA8AAAAPCAYAAAA71pVKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAGmSURBVDhPhZO/S0JRFMdvBG6GtfQaFAMXpyaH2oJwUyiUhkjJrUVo61+oKRyDoIaWCCSEFrMyaGko+gdCE0OHnko1GO/17Zx7b++HCH3hy+Odcz7n3nPffQKDwSEeHy10OhaAbTEiij2R98gG2UK3e4XZ2WUIMSUkGI0CmQzQau1oxhEBz+R9Cf/8APk8EAjY3EDg/d1CLgfqBCQS9/QMak7KgT8/51AsqrrVVaDRuOakBduGkxDinBzWLOfXUa8nEQyeyfzWFmhUCsNSMIsbJJMvssAwbvDwsELRRXx/LyEcvpRxXlGBLA/MMk04IxQKQL/v7ojBZlMXSo3ALD4UdwRld6tejYFZPIIXfn3VCZ988JC8ieFwAZHIqQ82jDJqtSWZV3UsH3xLhdPkYw2dkGfIB/q9TKYLQXVKHti2q5T8Ay/I0/prCU+8TDdxBOZD2tho6gIG5zUnRe8hsmqQSr2h19OwaVryyimQt+qsOCrKqRHSaaDdtib4bou1tUkRi32IUmlXxONfuna8stkDUamERLVqu38VdZIj/Gfe6d0d/YWdo19Vv0GDhUhfxQAAAABJRU5ErkJggg=='))}
+
     #compatibility sizing
     width = window.winfo_screenwidth()
     height = window.winfo_screenheight()
 
-    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6))) #1650x648 on 1080p
+    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6) + 50)) #1650x670 + 50 on 1080p
 
     #for clipboard action
     png_format = win32clipboard.RegisterClipboardFormat('PNG')
@@ -896,7 +1099,10 @@ if __name__ == '__main__':
     modes = {'Image Mode': ('png',), 'Whole Sheet': ('whl',), 'Pet or Enemy Mode': ('gif', 1), 'Player Skin Mode': ('gif', 3), 'Animation Mode': ('ani',), 'Full Overview': ('over', 1), 'Quick Overview': ('over', 3)}
     mode = ('png',)
     rendered_images, picture_widgets = [], set()
-    x, y = 8, 8
+    file_last_modified, mask_last_modified = '', ''
+    x, y, scale = 8, 8, 5
+    animation_speed_index = 0
+    entry_fixer_str = window.register(entry_fixer)
 
     ##################################################################################################################################
     #style options
@@ -904,6 +1110,8 @@ if __name__ == '__main__':
 
     default_font = font.nametofont('TkDefaultFont')
     default_font.config(size=int(height/120)) #9 on 1080p
+    bigger_font = default_font.copy()
+    bigger_font.config(size=int(height/90)) #12 on 1080p
 
     style = Style(window)
     style.theme_use('clam')
@@ -917,19 +1125,35 @@ if __name__ == '__main__':
         darkcolor='#292b2f',
         insertcolor='#d6d7d8',
         gripcount=10,
-        troughcolor='#45494f')
+        troughcolor='#45494f',
+        font=default_font)
 
     style.configure('separator.TFrame',
         background='#292b2f')
 
+
     style.configure('TMenubutton',
-        width=22)
+        width=23)
+
+    style.configure('info.TLabel',
+        font=bigger_font,
+        background='#292b2f')
 
     style.configure('TButton',
-        width=25)
-    
+        anchor=W,
+        width=23)
+
     style.configure('seek.TButton',
+        anchor=NSEW,
         width=4)
+    
+    style.configure('error.TButton',
+        background='#292b2f',
+        font=bigger_font)
+
+    style.configure('cloth.TButton',
+        anchor=EW,
+        width=25)
 
     style.map('.', foreground=[('disabled', '#6f7278')])
     style.map('TButton', background=[('active', '#292b2f')])
@@ -938,6 +1162,7 @@ if __name__ == '__main__':
     style.map('TCheckbutton', background=[('disabled', '#36393e')])
     style.map('Vertical.TScrollbar', background=[('active', '#45494f')])
     style.map('Horizontal.TScrollbar', background=[('active', '#45494f')])
+    style.map('info.TLabel', background=[('disabled', '#292b2f')])
 
     ##################################################################################################################################
     #binds
@@ -959,26 +1184,55 @@ if __name__ == '__main__':
     window.bind('<Escape>', lambda _: window.focus_set()) #for exiting from entries
 
     ##################################################################################################################################
+    #main content
+    main_content = Frame(window)
+
+    ##################################################################################################################################
     #sidebar
-    sidebar = Frame(window)
+    sidebar = Frame(main_content)
 
     ##################################################################################################################################
     #sidebar sheet buttons
     sheet_buttons = Frame(sidebar)
 
-    #file select
-    file_select_button = Button(sheet_buttons, text='Load Sheet', command=open_sheet, width=20)
-    file_select_button.grid(row=0, column=0, sticky='we')
+    #spacer
+    sheet_buttons_spacer = Frame(sheet_buttons)
+    sheet_buttons_spacer.grid(row=0, column=0, ipadx=16)
 
     #file select
-    mask_select_button = Button(sheet_buttons, text='Load Mask Sheet', command=open_mask)
-    mask_select_button.grid(row=1, column=0, sticky='we')
+    file_select_button = Button(sheet_buttons, text=' Load Sheet', command=open_sheet, width=20, image=icons['file'], compound=LEFT)
+    file_select_button.grid(row=0, column=1, sticky='we')
+
+    #file remember
+    file_remember_timer = repeated_timer(0.5, check_file)
+    file_remember_timer.stop()
+
+    file_remember = Button(sheet_buttons, command=start_check_file, image=icons['remember'])
+    file_remember.grid(row=0, column=2)
+    file_remember.state(('disabled',))
+
+    #mask file select
+    mask_select_button = Button(sheet_buttons, text=' Load Mask Sheet', command=open_mask, image=icons['file'], compound=LEFT)
+    mask_select_button.grid(row=1, column=1, sticky='we')
     picture_widgets.add(mask_select_button)
 
+    #mask remember
+    mask_remember_timer = repeated_timer(0.5, check_mask)
+    mask_remember_timer.stop()
+
+    mask_remember = Button(sheet_buttons, command=start_check_mask, image=icons['remember'])
+    mask_remember.grid(row=1, column=2)
+    mask_remember.state(('disabled',))
+
     #clear sheet
-    clear_sheet_button = Button(sheet_buttons, text='Clear Sheet', command=close_sheets)
-    clear_sheet_button.grid(row=2, column=0, sticky='we')
+    clear_sheet_button = Button(sheet_buttons, text=' Clear Sheet', command=close_sheets, image=icons['close'], compound=LEFT)
+    clear_sheet_button.grid(row=2, column=1, sticky='we')
     picture_widgets.add(clear_sheet_button)
+
+    #clear remembers
+    no_remember = Button(sheet_buttons, command=forget_remembers, image=icons['noremember'])
+    no_remember.grid(row=2, column=2)
+    no_remember.state(('disabled',))
 
     ##################################################################################################################################
     #seeking, size, mask toggle (et al as in and others)
@@ -996,7 +1250,7 @@ if __name__ == '__main__':
     seek_left.grid(row=1, column=0)
     picture_widgets.add(seek_left)
 
-    seek_entry = Entry(index_frame, justify='center', width=6, font=default_font)
+    seek_entry = Entry(index_frame, justify='center', width=6, font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d', 'seek'))
     seek_entry.insert(0, hex(seek_index.num))
     seek_entry.bind('<Return>', update_index_frame_from_entry)
     seek_entry.bind('<FocusOut>', update_index_frame_from_entry)
@@ -1011,11 +1265,11 @@ if __name__ == '__main__':
     seek_down.grid(row=2, column=1)
     picture_widgets.add(seek_down)
 
-    index_frame.grid(row=0, column=0, padx=int(height/54)) #20 on 1080p
+    index_frame.grid(row=0, column=0, padx=int(height/108)) #10 on 1080p
 
     et_al_frame = Frame(seek_et_al_frame)
 
-    width_entry = Entry(et_al_frame, width=10, justify='center')
+    width_entry = Entry(et_al_frame, width=10, justify='center', validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     width_entry.insert(0, '8')
     width_entry.bind('<Return>', lambda _:render())
     width_entry.grid(row=0, column=0)
@@ -1025,7 +1279,7 @@ if __name__ == '__main__':
     width_label.grid(row=0, column=1, sticky='w')
     picture_widgets.add(width_label)
 
-    height_entry = Entry(et_al_frame, width=10, justify='center')
+    height_entry = Entry(et_al_frame, width=10, justify='center', validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     height_entry.insert(0, '8')
     height_entry.bind('<Return>', lambda _:render())
     height_entry.grid(row=1, column=0)
@@ -1050,7 +1304,7 @@ if __name__ == '__main__':
     shadow_check.grid(row=5, column=0, columnspan=2, sticky='w')
     picture_widgets.add(shadow_check)
 
-    et_al_frame.grid(row=0, column=1, padx=int(height/54)) #20 on 1080p
+    et_al_frame.grid(row=0, column=1, padx=int(height/108)) #10 on 1080p
 
     ##################################################################################################################################
     #entries
@@ -1063,7 +1317,7 @@ if __name__ == '__main__':
     scale_label.grid(row=0, column=0)
     picture_widgets.add(scale_label)
 
-    scale_entry = Entry(scale_frame, justify='center', font=default_font)
+    scale_entry = Entry(scale_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     scale_entry.insert(0, '5')
     scale_entry.bind('<Return>', lambda _:render())
     scale_entry.grid(row=0, column=1, sticky='we', ipadx =int(height/18)) #60 on 1080p
@@ -1078,7 +1332,7 @@ if __name__ == '__main__':
     gif_speed_label.grid(row=0, column=0)
     picture_widgets.add(gif_speed_label)
 
-    gif_speed_entry = Entry(gif_speed_frame, justify='center', font=default_font)
+    gif_speed_entry = Entry(gif_speed_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d', 'comma'))
     gif_speed_entry.insert(0, '500')
     gif_speed_entry.bind('<Return>', lambda _:render())
     gif_speed_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/31.765)) #34 on 1080p
@@ -1093,7 +1347,7 @@ if __name__ == '__main__':
     animation_length_label.grid(row=0, column=0, padx=1)
     picture_widgets.add(animation_length_label)
 
-    animation_length_entry = Entry(animation_length_frame, justify='center', font=default_font)
+    animation_length_entry = Entry(animation_length_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     animation_length_entry.insert(0, '0')
     animation_length_entry.bind('<Return>', lambda _:render())
     animation_length_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/43.2)) #25 on 1080p
@@ -1115,7 +1369,7 @@ if __name__ == '__main__':
     bg_color_label.grid(row=0, column=0, sticky='e')
     picture_widgets.add(bg_color_label)
 
-    bg_picker = Button(bg_color_frame, text='Choose Background', command=bg_color_chooser)
+    bg_picker = Button(bg_color_frame, text=' Choose Background', command=bg_color_chooser, image=icons['color'], compound=LEFT)
     bg_picker.grid(row=0, column=1, sticky='we')
     picture_widgets.add(bg_picker)
 
@@ -1139,7 +1393,7 @@ if __name__ == '__main__':
     mask_clothing_image = Image.new('RGB', (int(height/54), int(height/54)), '#ff0000')
     mask_clothing_handler = color_picker(mask_clothing_image, mask_clothing_label, 'Mask Clothing Color')
 
-    mask_clothing_picker = Button(mask_clothing_frame, text='Choose Clothing (Mask)', command=mask_clothing_handler.generate)
+    mask_clothing_picker = Button(mask_clothing_frame, text=' Choose Clothing (Mask)', command=mask_clothing_handler.generate, image=icons['color'], compound=LEFT)
     mask_clothing_picker.grid(row=0, column=1, sticky='we')
     picture_widgets.add(mask_clothing_picker)
 
@@ -1156,7 +1410,7 @@ if __name__ == '__main__':
     mask_accessory_image = Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')
     mask_accessory_handler = color_picker(mask_accessory_image, mask_accessory_label, 'Mask Clothing Color')
 
-    mask_accessory_picker = Button(mask_accessory_frame, text='Choose Clothing (Mask)', command=mask_accessory_handler.generate)
+    mask_accessory_picker = Button(mask_accessory_frame, text=' Choose Accessory (Mask)', command=mask_accessory_handler.generate, image=icons['color'], compound=LEFT)
     mask_accessory_picker.grid(row=0, column=1, sticky='we')
     picture_widgets.add(mask_accessory_picker)
 
@@ -1179,22 +1433,17 @@ if __name__ == '__main__':
     finish_buttons = Frame(sidebar)
 
     #render
-    render_button = Button(finish_buttons, text='Render', command=render, width=20)
+    render_button = Button(finish_buttons, text=' Render', command=render, width=20, image=icons['render'], compound=LEFT)
     render_button.grid(row=0, column=0, sticky='we')
     picture_widgets.add(render_button)
 
-    #copy to clipboard
-    #clipboard_button = Button(finish_buttons, text='Copy to Clipboard', command=send_image_to_clipboard)
-    #clipboard_button.grid(row=1, column=0, sticky='we')
-    #picture_widgets.add(clipboard_button)
-
     #saves first frame if multiple
-    save_image_button = Button(finish_buttons, text='Save PNG', command=save_as_image)
+    save_image_button = Button(finish_buttons, text=' Save PNG', command=save_as_image, image=icons['save'], compound=LEFT)
     save_image_button.grid(row=2, column=0, sticky='we')
     picture_widgets.add(save_image_button)
 
     #saves as gif for animation and gif modes
-    save_gif_button = Button(finish_buttons, text='Save GIF', command=save_as_gif)
+    save_gif_button = Button(finish_buttons, text=' Save GIF', command=save_as_gif, image=icons['save'], compound=LEFT)
     save_gif_button.grid(row=3, column=0, sticky='we')
     picture_widgets.add(save_gif_button)
 
@@ -1205,53 +1454,72 @@ if __name__ == '__main__':
 
     ##################################################################################################################################
     #sidebar grid
-    sheet_buttons.grid(row=0, column=0)
-    seek_et_al_frame.grid(row=1, column=0, pady=int(height/54)) #20 on 1080p
-    entries_frame.grid(row=2, column=0)
-    color_pickers_frame.grid(row=3, column=0, pady=int(height/54)) #20 on 1080p
-    option_menus_frame.grid(row=4, column=0)
-    finish_buttons.grid(row=5, column=0, pady=int(height/54)) #20 on 1080p
-    sidebar.grid(row=0, column=0, sticky='nw', padx=int(height/108), pady=int(height/108)) #10x10 on 1080p
+    sheet_buttons.grid(row=0, column=0, pady=int(height/108)) #10 on 1080p
+    seek_et_al_frame.grid(row=1, column=0, pady=int(height/108)) #10 on 1080p
+    entries_frame.grid(row=2, column=0, pady=int(height/108)) #10 on 1080p
+    color_pickers_frame.grid(row=3, column=0, pady=int(height/108)) #10 on 1080p
+    option_menus_frame.grid(row=4, column=0, pady=int(height/108)) #10 on 1080p
+    finish_buttons.grid(row=5, column=0, pady=int(height/108)) #10 on 1080p
+    sidebar.grid(row=0, column=0, sticky='nw', padx=int(height/108), pady=int(height/108)) #10, 10 on 1080p
 
     ##################################################################################################################################
-    #main content
-    main_content = Frame(window)
+    #previews frame
+    previews_frame = Frame(main_content)
 
     #preview
-    preview_label = Label(main_content, text='Preview:')
-    preview_label.grid(row=0, column=0, sticky='nw', pady=int(height/108)) #10 on 1080p
+    preview_label = Label(previews_frame, text='Preview:', font=bigger_font)
+    preview_label.grid(row=0, column=0, pady=int(height/108)) #10 on 1080p
 
-    preview_image_label = Label(main_content)
+    preview_image_label = Label(previews_frame)
     preview_image_label.grid(row=1, column=0, sticky='nw')
 
     preview_sheet_sample = preview_image(preview_image_label)
 
     #mask preview
-    preview_mask_label = Label(main_content, text='Mask:')
-    preview_mask_label.grid(row=2, column=0, sticky='nw', pady=int(height/108)) #10 on 1080p
+    preview_mask_label = Label(previews_frame, text='Mask:', font=bigger_font, anchor=CENTER)
+    preview_mask_label.grid(row=2, column=0, pady=int(height/108)) #10 on 1080p
 
-    preview_mask_image_label = Label(main_content)
+    preview_mask_image_label = Label(previews_frame)
     preview_mask_image_label.grid(row=3, column=0, sticky='nw')
 
     preview_mask_sample = preview_image(preview_mask_image_label)
 
     #separator
-    separator_two = Frame(main_content, style='separator.TFrame')
-    separator_two.grid(row=0, column=1, rowspan=4, sticky='ns', ipadx=1, padx=int(height/43.2)) #25 on 1080p
+    separator_two = Frame(previews_frame, style='separator.TFrame')
+    separator_two.grid(row=0, column=1, rowspan=4, sticky='ns', ipadx=1, padx=int(height/43.2), pady=int(height/108)) #25, 10 on 1080p
 
     #rendered
-    rendered_label = Label(main_content, text='Rendered:')
+    rendered_label = Label(previews_frame, text='Rendered:', font=bigger_font, anchor=CENTER)
     rendered_label.grid(row=0, column=2, sticky='nw', pady=int(height/108)) #10 on 1080p
 
-    rendered_image = Canvas(main_content, height=0, width=0, relief=FLAT, background='#36393e', highlightthickness=0)
+    rendered_image = Canvas(previews_frame, height=0, width=0, relief=FLAT, background='#36393e', highlightthickness=0)
     rendered_image.grid(row=1, column=2, rowspan=3, sticky='nw')
 
-    main_content.grid(row=0, column=1, sticky='nw')
+    previews_frame.grid(row=0, column=1, sticky='nw')
+
+    ##################################################################################################################################
+    #pack main content
+    main_content.pack(side=TOP, fill=X)
 
     ##################################################################################################################################
     #info bar
-    #info_frame = Frame(window, style='separator.TFrame')
-    #info_frame.grid(row=1, column=0, columnspan=100, sticky='sew', ipady=20, ipadx=1000)
+    info_frame = Frame(window, style='separator.TFrame')
+
+    file_name = Label(info_frame, text='', anchor=W, width=0, style='info.TLabel')
+    file_name.pack(side=LEFT, padx=5)
+    picture_widgets.add(file_name)
+
+    file_size = Label(info_frame, text='', anchor=E, width=0, style='info.TLabel')
+    file_size.pack(side=RIGHT, padx=5)
+    picture_widgets.add(file_size)
+
+    error_frame = Frame(info_frame, style='separator.TFrame')
+    error_frame.pack(side=BOTTOM, fill=X, ipady=20)
+
+    error_message = Button(error_frame, text='', style='error.TButton', image=icons['error'], compound=LEFT)
+    error_message.config(command=error_message.pack_forget)
+
+    info_frame.pack(side=BOTTOM, fill=BOTH, ipady=20)
 
     ##################################################################################################################################
     #disable widgets
@@ -1261,7 +1529,7 @@ if __name__ == '__main__':
     #timer for gif previews
     gif_timer = repeated_timer(0.5, update_render_gif)
     gif_timer.stop()
-    frame = 0
+    frame, gif_run = 0, False
 
     window.mainloop()
     try:    win32clipboard.CloseClipboard()

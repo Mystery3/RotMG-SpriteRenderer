@@ -566,11 +566,14 @@ def update_render_gif():
     gif_frame = ImageTk.PhotoImage(rendered_images[frame])
     rendered_image.create_image(0, 0, image=gif_frame, anchor=NW)
 
-    gif_timer.interval = gif_speed_list[animation_speed_index % len(gif_speed_list)] / 1000
+    gif_timer.interval = gif_speed_list[(animation_speed_index + 1) % len(gif_speed_list)] / 1000
 
     animation_speed_index+= 1
 
-    if frame == len(rendered_images) - 1:    frame = 0
+    if frame == len(rendered_images) - 1:
+        frame = 0
+        animation_speed_index = 0
+        
     else:    frame+= 1
 
 def save_as_image():

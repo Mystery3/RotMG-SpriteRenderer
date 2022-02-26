@@ -1414,7 +1414,7 @@ if __name__ == '__main__':
     picture_widgets.add(mask_accessory_label)
 
     mask_accessory_image = Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')
-    mask_accessory_handler = color_picker(mask_accessory_image, mask_accessory_label, 'Mask Clothing Color')
+    mask_accessory_handler = color_picker(mask_accessory_image, mask_accessory_label, 'Mask Accessory Color')
 
     mask_accessory_picker = Button(mask_accessory_frame, text=' Choose Accessory (Mask)', command=mask_accessory_handler.generate, image=icons['color'], compound=LEFT)
     mask_accessory_picker.grid(row=0, column=1, sticky='we')

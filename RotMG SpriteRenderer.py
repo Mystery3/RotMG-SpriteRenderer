@@ -342,8 +342,7 @@ def update_index_frame_from_button(increment: int):
     seek_entry.delete(0, END)
     seek_entry.insert(0, hex(seek_index.num))
 
-    if mode[0] != 'over' and mode[0] != 'whl':
-        render()
+    if mode[0] != 'over' and mode[0] != 'whl':    render()
 
 def update_index_frame_from_entry(event):
     if int('0' + seek_entry.get().lstrip('0').lstrip('x'), 16) > -1:    seek_index.hex_to_int(seek_entry.get())
@@ -577,7 +576,7 @@ def update_render_gif():
     gif_timer.interval = gif_speed_list[animation_speed_index % len(gif_speed_list)] / 1000
 
 def save_as_image():
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('.png') + '.png') == '.png':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.png'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('PNG', '*.png')]).rstrip('png').rstrip('.') + '.png') == '.png':
         show_error('File not saved, invalid path.')
         return
     try:
@@ -592,7 +591,7 @@ def save_as_gif():
         show_error('Wrong Mode.')
         return
 
-    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('.gif') + '.gif') == '.gif':
+    if (file_path := filedialog.asksaveasfilename(confirmoverwrite = True, initialfile = '{}-{}-{}.gif'.format(opened_file.rpartition('/')[2].rstrip('png').rstrip('.'), mode[0], datetime.now().strftime('%H%M%S')), filetypes = [('GIF', '*.gif')]).rstrip('gif').rstrip('.') + '.gif') == '.gif':
         show_error('File not saved, invalid path.')
         return
 

@@ -32,6 +32,7 @@ https://imgur.com/a/0LIZ5kd
 
 # Modes
 All outlines are a 1-pixel solid black line
+
 All modes support masks
 
 - Image Mode

@@ -71,8 +71,9 @@ class image_handler:
                 bg.alpha_composite(sized_silhouette, (scale, scale))
                 bg = bg.filter(ImageFilter.GaussianBlur(radius=scale/2))
 
-            for i in (-1, 1):
-                for j in (-1, 1):    bg.alpha_composite(sized_silhouette, (scale+i, scale+j))
+            if 'selected' in outline_check.state():
+                for i in (-1, 1):
+                    for j in (-1, 1):    bg.alpha_composite(sized_silhouette, (scale+i, scale+j))
 
         #final image
         bg.alpha_composite(self.image.resize((x*scale, y*scale), resample=Image.BOX), (scale, scale))
@@ -104,14 +105,16 @@ class image_handler:
                 accessory_texture_filled.alpha_composite(accessory_texture, (i, base_y - j - accessory_texture_size))
 
         #reading mask, saving intensity and position of red and green pixels
-        inc = 0
+        inc = -1
         primaries, secondaries = [], []
         for i in self.mask.getdata():
+            inc+= 1
+            if i[3] == 0:
+                continue
             if i[0] != 0:
                 primaries.append((i[0], int(inc % x), int(inc / x)))
             elif i[1] != 0:
                 secondaries.append((i[1], int(inc % x), int(inc / x)))
-            inc+= 1
 
         #according to previous step, cut from texture image to paste onto base image, then paste transparent layer for brightness adjust
         for i in primaries:
@@ -479,6 +482,9 @@ def close_sheets():
     preview_mask_sample.update_image(_image)
     rendered_image.delete('all')
 
+    file_name.config(text='')
+    file_size.config(text='')
+
     gif_timer.stop()
     frame, gif_run = 0, False
 
@@ -767,6 +773,11 @@ def render():
     global x, y, scale, frame, gif_run
     try:    win32clipboard.CloseClipboard()
     except:    pass
+
+    try:    sheet.sheet_size()
+    except:
+        show_error('No Sheet: 779') 
+        return
 
     #x, y, scale
     if width_entry.get() == '':
@@ -1093,7 +1104,7 @@ if __name__ == '__main__':
     width = window.winfo_screenwidth()
     height = window.winfo_screenheight()
 
-    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.6) + 50)) #1650x670 + 50 on 1080p
+    window.geometry('{}x{}'.format(int(width*0.859), int(height*0.62) + 50)) #1650x670 + 50 on 1080p
 
     #for clipboard action
     png_format = win32clipboard.RegisterClipboardFormat('PNG')
@@ -1135,7 +1146,6 @@ if __name__ == '__main__':
 
     style.configure('separator.TFrame',
         background='#292b2f')
-
 
     style.configure('TMenubutton',
         width=23)
@@ -1191,17 +1201,21 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #main content
     main_content = Frame(window)
+    main_content.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     ##################################################################################################################################
     #sidebar
     sidebar = Frame(main_content)
+    sidebar.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     ##################################################################################################################################
     #sidebar sheet buttons
     sheet_buttons = Frame(sidebar)
+    sheet_buttons.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #spacer
     sheet_buttons_spacer = Frame(sheet_buttons)
+    sheet_buttons_spacer.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     sheet_buttons_spacer.grid(row=0, column=0, ipadx=16)
 
     #file select
@@ -1240,12 +1254,14 @@ if __name__ == '__main__':
     no_remember.state(('disabled',))
 
     ##################################################################################################################################
-    #seeking, size, mask toggle (et al as in and others)
+    #seeking, size, mask toggle, bg, shadow, outline
     seek_index = index(0)
 
     seek_et_al_frame = Frame(sidebar)
+    seek_et_al_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     index_frame = Frame(seek_et_al_frame)
+    index_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     seek_up = Button(index_frame, text='🡅', command=lambda: update_index_frame_from_button(-ceil(sheet.sheet_size()[0] / x)), style='seek.TButton')
     seek_up.grid(row=0, column=1)
@@ -1273,28 +1289,32 @@ if __name__ == '__main__':
     index_frame.grid(row=0, column=0, padx=int(height/108)) #10 on 1080p
 
     et_al_frame = Frame(seek_et_al_frame)
+    et_al_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     width_entry = Entry(et_al_frame, width=10, justify='center', validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     width_entry.insert(0, '8')
     width_entry.bind('<Return>', lambda _:render())
     width_entry.grid(row=0, column=0)
-    picture_widgets.add(width_entry)
+    #picture_widgets.add(width_entry)
 
     width_label = Label(et_al_frame, text='Width')
+    width_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     width_label.grid(row=0, column=1, sticky='w')
-    picture_widgets.add(width_label)
+    #picture_widgets.add(width_label)
 
     height_entry = Entry(et_al_frame, width=10, justify='center', validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     height_entry.insert(0, '8')
     height_entry.bind('<Return>', lambda _:render())
     height_entry.grid(row=1, column=0)
-    picture_widgets.add(height_entry)
+    #picture_widgets.add(height_entry)
 
     height_label = Label(et_al_frame, text='Height')
+    height_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     height_label.grid(row=1, column=1, sticky='w')
-    picture_widgets.add(height_label)
+    #picture_widgets.add(height_label)
 
     check_size_spacer = Frame(et_al_frame)
+    check_size_spacer.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     check_size_spacer.grid(row=2, column=0, columnspan=2, ipady=5)
 
     mask_check = Checkbutton(et_al_frame, text='Render Mask', command=render)
@@ -1303,121 +1323,138 @@ if __name__ == '__main__':
 
     bg_check = Checkbutton(et_al_frame, text='Render BG', command=render)
     bg_check.grid(row=4, column=0, columnspan=2, sticky='w')
-    picture_widgets.add(bg_check)
+    #picture_widgets.add(bg_check)
 
     shadow_check = Checkbutton(et_al_frame, text='Render Shadows', command=render)
     shadow_check.grid(row=5, column=0, columnspan=2, sticky='w')
-    picture_widgets.add(shadow_check)
+    #picture_widgets.add(shadow_check)
+
+    outline_check = Checkbutton(et_al_frame, text='Render Outline', command=render)
+    outline_check.grid(row=6, column=0, columnspan=2, sticky='w')
+    #picture_widgets.add(outline_check)
 
     et_al_frame.grid(row=0, column=1, padx=int(height/108)) #10 on 1080p
 
     ##################################################################################################################################
     #entries
     entries_frame = Frame(sidebar)
+    entries_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #scale
     scale_frame= Frame(entries_frame)
+    scale_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     scale_label = Label(scale_frame, text='Scale:')
+    scale_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     scale_label.grid(row=0, column=0)
-    picture_widgets.add(scale_label)
+    #picture_widgets.add(scale_label)
 
     scale_entry = Entry(scale_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     scale_entry.insert(0, '5')
     scale_entry.bind('<Return>', lambda _:render())
     scale_entry.grid(row=0, column=1, sticky='we', ipadx =int(height/18)) #60 on 1080p
-    picture_widgets.add(scale_entry)
+    #picture_widgets.add(scale_entry)
 
     scale_frame.grid(row=0, column=0, sticky='we')
 
     #gif speed
     gif_speed_frame= Frame(entries_frame)
+    gif_speed_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     gif_speed_label = Label(gif_speed_frame, text='GIF Speed (ms): ')
+    gif_speed_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     gif_speed_label.grid(row=0, column=0)
-    picture_widgets.add(gif_speed_label)
+    #picture_widgets.add(gif_speed_label)
 
     gif_speed_entry = Entry(gif_speed_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d', 'comma'))
     gif_speed_entry.insert(0, '500')
     gif_speed_entry.bind('<Return>', lambda _:render())
     gif_speed_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/31.765)) #34 on 1080p
-    picture_widgets.add(gif_speed_entry)
+    #picture_widgets.add(gif_speed_entry)
 
     gif_speed_frame.grid(row=1, column=0, sticky='we')
 
     #animation length
     animation_length_frame = Frame(entries_frame)
+    animation_length_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     animation_length_label = Label(animation_length_frame, text='Animation Length:')
+    animation_length_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     animation_length_label.grid(row=0, column=0, padx=1)
-    picture_widgets.add(animation_length_label)
+    #picture_widgets.add(animation_length_label)
 
     animation_length_entry = Entry(animation_length_frame, justify='center', font=default_font, validate='key', validatecommand=(entry_fixer_str, '%P', '%d'))
     animation_length_entry.insert(0, '0')
     animation_length_entry.bind('<Return>', lambda _:render())
     animation_length_entry.grid(row=0, column=1, sticky='we', ipadx=int(height/43.2)) #25 on 1080p
-    picture_widgets.add(animation_length_entry)
+    #picture_widgets.add(animation_length_entry)
 
     animation_length_frame.grid(row=2, column=0, sticky='we')
 
     ##################################################################################################################################
     #color pickers
     color_pickers_frame = Frame(sidebar)
+    color_pickers_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #bg color (for gifs)
     bg_color_frame = Frame(color_pickers_frame)
+    bg_color_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     bg_var = StringVar(window, '#36393e')
 
     bg_color_image = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), bg_var.get())) #20x20 on 1080p
     bg_color_label = Label(bg_color_frame, image=bg_color_image)
     bg_color_label.grid(row=0, column=0, sticky='e')
-    picture_widgets.add(bg_color_label)
+    #picture_widgets.add(bg_color_label)
 
     bg_picker = Button(bg_color_frame, text=' Choose Background', command=bg_color_chooser, image=icons['color'], compound=LEFT)
     bg_picker.grid(row=0, column=1, sticky='we')
-    picture_widgets.add(bg_picker)
+    #picture_widgets.add(bg_picker)
 
     bg_color_frame.grid(row=0, column=0)
 
     #spacer
     spacer = Frame(bg_color_frame)
+    spacer.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     spacer.grid(row=0, column=2, padx=int(height/90)) #12 on 1080p
 
     #mask frame
     mask_colors = Frame(color_pickers_frame)
+    mask_colors.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #mask clothing
     mask_clothing_frame = Frame(mask_colors)
+    mask_clothing_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     mask_clothing_preview = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), '#ff0000')) #20x20 on 1080p
     mask_clothing_label = Label(mask_clothing_frame, image=mask_clothing_preview)
     mask_clothing_label.grid(row=0, column=0, sticky='e')
-    picture_widgets.add(mask_clothing_label)
+    #picture_widgets.add(mask_clothing_label)
 
     mask_clothing_image = Image.new('RGB', (int(height/54), int(height/54)), '#ff0000')
     mask_clothing_handler = color_picker(mask_clothing_image, mask_clothing_label, 'Mask Clothing Color')
 
     mask_clothing_picker = Button(mask_clothing_frame, text=' Choose Clothing (Mask)', command=mask_clothing_handler.generate, image=icons['color'], compound=LEFT)
     mask_clothing_picker.grid(row=0, column=1, sticky='we')
-    picture_widgets.add(mask_clothing_picker)
+    #picture_widgets.add(mask_clothing_picker)
 
     mask_clothing_frame.grid(row=0, column=0)
     
     #mask accessory
     mask_accessory_frame = Frame(mask_colors)
+    mask_accessory_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     mask_accessory_preview = ImageTk.PhotoImage(Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')) #20x20 on 1080p
     mask_accessory_label = Label(mask_accessory_frame, image=mask_accessory_preview)
     mask_accessory_label.grid(row=0, column=0, sticky='e')
-    picture_widgets.add(mask_accessory_label)
+    #picture_widgets.add(mask_accessory_label)
 
     mask_accessory_image = Image.new('RGB', (int(height/54), int(height/54)), '#00ff00')
     mask_accessory_handler = color_picker(mask_accessory_image, mask_accessory_label, 'Mask Accessory Color')
 
     mask_accessory_picker = Button(mask_accessory_frame, text=' Choose Accessory (Mask)', command=mask_accessory_handler.generate, image=icons['color'], compound=LEFT)
     mask_accessory_picker.grid(row=0, column=1, sticky='we')
-    picture_widgets.add(mask_accessory_picker)
+    #picture_widgets.add(mask_accessory_picker)
 
     mask_accessory_frame.grid(row=1, column=0)
 
@@ -1426,6 +1463,7 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #option menus
     option_menus_frame = Frame(sidebar)
+    option_menus_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #mode option
     mode_list = OptionMenu(option_menus_frame, (mode_var := StringVar(window, 'Image Mode')), None, *modes.keys(), command=update_mode)
@@ -1436,6 +1474,7 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #render and save buttons
     finish_buttons = Frame(sidebar)
+    finish_buttons.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #render
     render_button = Button(finish_buttons, text=' Render', command=render, width=20, image=icons['render'], compound=LEFT)
@@ -1455,6 +1494,7 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #separator
     separator_one = Frame(sidebar, style='separator.TFrame')
+    separator_one.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     separator_one.grid(row=0, column=1, rowspan=6, sticky='ns', ipadx=1, padx=int(height/54))
 
     ##################################################################################################################################
@@ -1470,34 +1510,42 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #previews frame
     previews_frame = Frame(main_content)
+    previews_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     #preview
     preview_label = Label(previews_frame, text='Preview:', font=bigger_font)
+    preview_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     preview_label.grid(row=0, column=0, pady=int(height/108)) #10 on 1080p
 
     preview_image_label = Label(previews_frame)
+    preview_image_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     preview_image_label.grid(row=1, column=0, sticky='nw')
 
     preview_sheet_sample = preview_image(preview_image_label)
 
     #mask preview
     preview_mask_label = Label(previews_frame, text='Mask:', font=bigger_font, anchor=CENTER)
+    preview_mask_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     preview_mask_label.grid(row=2, column=0, pady=int(height/108)) #10 on 1080p
 
     preview_mask_image_label = Label(previews_frame)
+    preview_mask_image_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     preview_mask_image_label.grid(row=3, column=0, sticky='nw')
 
     preview_mask_sample = preview_image(preview_mask_image_label)
 
     #separator
     separator_two = Frame(previews_frame, style='separator.TFrame')
+    separator_two.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     separator_two.grid(row=0, column=1, rowspan=4, sticky='ns', ipadx=1, padx=int(height/43.2), pady=int(height/108)) #25, 10 on 1080p
 
     #rendered
     rendered_label = Label(previews_frame, text='Rendered:', font=bigger_font, anchor=CENTER)
+    rendered_label.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     rendered_label.grid(row=0, column=2, sticky='nw', pady=int(height/108)) #10 on 1080p
 
     rendered_image = Canvas(previews_frame, height=0, width=0, relief=FLAT, background='#36393e', highlightthickness=0)
+    rendered_image.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     rendered_image.grid(row=1, column=2, rowspan=3, sticky='nw')
 
     previews_frame.grid(row=0, column=1, sticky='nw')
@@ -1509,16 +1557,20 @@ if __name__ == '__main__':
     ##################################################################################################################################
     #info bar
     info_frame = Frame(window, style='separator.TFrame')
+    info_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
 
     file_name = Label(info_frame, text='', anchor=W, width=0, style='info.TLabel')
+    file_name.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     file_name.pack(side=LEFT, padx=5)
     picture_widgets.add(file_name)
 
     file_size = Label(info_frame, text='', anchor=E, width=0, style='info.TLabel')
+    file_size.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     file_size.pack(side=RIGHT, padx=5)
     picture_widgets.add(file_size)
 
     error_frame = Frame(info_frame, style='separator.TFrame')
+    error_frame.bind('<Button-1>', lambda _: window.focus_set()) #for exiting from entries
     error_frame.pack(side=BOTTOM, fill=X, ipady=20)
 
     error_message = Button(error_frame, text='', style='error.TButton', image=icons['error'], compound=LEFT)

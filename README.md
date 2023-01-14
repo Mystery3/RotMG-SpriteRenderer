@@ -7,7 +7,7 @@ https://imgur.com/a/0LIZ5kd
 # Features
 - Previewing both sheets and rendering
 - Seek feature that allows you to scroll through larger sheets along with manual hex input
-- Mask, bg, and shadow toggles
+- Mask, bg, outline, and shadow toggles
 - Custom background color, default is set to discord's bg color
 - Clothing and accessory mask options, can select a custom color, select from a list of cloths, or upload your own cloth
 - GIFs are previewed before saving
@@ -28,10 +28,10 @@ https://imgur.com/a/0LIZ5kd
    - Control + Shift + V pastes a sheet into the tool as the mask sheet
    - Arrow Keys are used for seeking
    - Pressing Enter in any entry field renders
-   - Pressing Escape removes focus from an entry field if you are in one
+   - Pressing Escape or clicking anywhere else removes focus from an entry field if you are in one
 
 # Modes
-All renders have a 1-pixel solid black outline
+All outlines are a 1-pixel solid black line
 All modes support masks
 
 - Image Mode

@@ -59,7 +59,7 @@ class image_handler:
         #resize silhouette and create bg
         sized_silhouette = silhouette.resize((x*scale, y*scale), resample = Image.BOX)
 
-        if 'selected' in bg_check.state():
+        if 'selected' in bg_check.state() and self.mask == None:
             bg = Image.new('RGBA', ((x+2)*scale, (y+2)*scale), bg_var.get())
 
         else:
@@ -77,7 +77,7 @@ class image_handler:
 
         #final image
         bg.alpha_composite(self.image.resize((x*scale, y*scale), resample=Image.BOX), (scale, scale))
-        
+
         return bg.convert('RGBA')
     
     def render_mask(self, scale: int, clothing_texture: Image, accessory_texture: Image) -> Image:
@@ -133,16 +133,17 @@ class image_handler:
 
         #create shadow
         silhouette = self.silhouette().resize((x * scale, y * scale), resample=Image.BOX)
-        bg = Image.new('RGBA', (int(base_x * (scale / 4)), int(base_y * (scale / 4))), (0, 0, 0, 0))
-
+        bg = Image.new('RGBA', (int(base_x * (scale / 4)), int(base_y * (scale / 4))), bg_var.get())
+        
         if 'selected' in shadow_check.state():
             bg.alpha_composite(silhouette, (scale, scale))
             bg = bg.filter(ImageFilter.GaussianBlur(radius=scale/2))
 
         #outline
-        for i in (-1, 1):
-            for j in (-1, 1):    bg.alpha_composite(silhouette, (scale+i, scale+j))
-
+        if 'selected' in outline_check.state():
+            for i in (-1, 1):
+                for j in (-1, 1):    bg.alpha_composite(silhouette, (scale+i, scale+j))
+        
         #drop resized base onto shadow
         base = base.resize((int(base_x * (scale / 4)), int(base_y * (scale / 4))), resample=Image.BOX)
         bg.alpha_composite(base, (0, 0))
@@ -406,6 +407,7 @@ def open_sheet(clipboard=False):
     seek_entry.insert(0, hex(seek_index.num))
 
     for widg in picture_widgets:    widg.state(('!disabled',))
+    outline_check.state(('selected',))
 
     file_name.config(text=opened_file.rpartition('/')[2], width=len(opened_file.rpartition('/')[2]))
     file_size.config(text='{}x{}'.format(image.size[0], image.size[1]), width=len('{}x{}'.format(image.size[0], image.size[1])))

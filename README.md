@@ -2,54 +2,50 @@
 A replacement for Tuvior's Tool
 
 # Tutorial
-https://imgur.com/a/0LIZ5kd
+OUTDATED - https://imgur.com/a/0LIZ5kd
 
 # Features
-- Previewing both sheets and rendering
-- Seek feature that allows you to scroll through larger sheets along with manual hex input
-- Mask, bg, outline, and shadow toggles
-- Custom background color, default is set to discord's bg color
-- Clothing and accessory mask options, can select a custom color, select from a list of cloths, or upload your own cloth
-- GIFs are previewed before saving
-- Dynamic GIF length
-- Images that would extend beyond the window are instead displayed in a separate window
-- Copying Image to clipboard
-- Pasting Image from clipboard as the main or mask sheet (due to clipboard limitations, not all images work, images from Chrome and PAINT.net will work, from discord will not)
+- Previewing sheets and renders
+- Seek feature that allows you to scroll through larger sheets along with manual index input
+- Customizable mask, bg, outline, and shadow
+- Outline adjusts to upscale
+- Cloth options
+- Customizable GIF length
+- Copying and Pasting Images
 - Transparent Background for GIFs (without shadows)
-- "Subscribe" Feature that allows changes you make to a file to automatically be rendered
+- "Subscribe" feature that allows changes you make to a file to automatically be rendered
+- Themes
 - Shortcuts for opening sheets, rendering, closing sheets, copying, and pasting
-   - Control + O prompts you to open a sheet
-   - Control + M prompts you to open a mask sheet
-   - Control + R renders the sheet
-   - Control + / closes the open sheets
-   - Control + C copies the first frame of the current render
-   - Control + V pastes a sheet into the tool as the main sheet
-      - Control + V can paste a cloth texture if the cloth window is open
-   - Control + Shift + V pastes a sheet into the tool as the mask sheet
-   - Arrow Keys are used for seeking
-   - Pressing Enter in any entry field renders
-   - Pressing Escape or clicking anywhere else removes focus from an entry field if you are in one
+   - Control + 1-8 makes focus jump to buttons throughout the app
+   - Control + v pastes a sheet in
+   - Control + Shift + v pastes a mask sheet in
+   - Control + c copies the render (images only)
+   - Control + s saves the current render
+   - Control + h sets the index to 0
+   - Control + Shift + h resets scrolling in the render back to the top left
+   - Control + q clears any alerts
+   - Arrow Keys seek through the sheet
+   - Control + Arrow Keys scrolls in the render
+   - Escape removes focus from any widget
+   - Enter/Return renders with the current settings
 
 # Modes
-All outlines are a 1-pixel solid black line
-
-All modes support masks
-
 - Image Mode
   - Renders the selection as an image
-- Whole Sheet
-  - Renders each image in the sheet
-- Pet or Enemy Mode
-  - Creates a GIF of 1 row of a properly formatted animation (https://lh6.googleusercontent.com/QUFc2BtMCO4CppgsHA2r7bjN62jd_RgZ3-1Ow3HV24Jckgtht9ARvK7YbIFFD7Zr0CgbeRqEXMJhV-37sSntmVz0t990pR-FxWeIeem7U-k7nT_mitO6Y1zkNtRNH7bydXiJ1Yg)
-- Player Skin Mode
-  - Same as Pet or Enemy Mode, but for 3 rows
+  - The length option changes how many images are rendered; the shape of rendered images is not perserved but the number of columns of the original sheet are.
+  - A length of 0 renders the whole sheet from the starting index
+- Entity Mode
+  - Creates a GIF of a row of a properly formatted animation
+  - The length option changes how many rows are rendered
+  - A length of 0 renders the whole sheet from the starting index
 - Animation Mode
   - Creates a GIF that scrolls through each frame, starting at the index
-  - The length of the animation can be specified with the animation length entry. If it is 0 the animation plays until it reaches the end of the sheet.
-- Full Overview
-  - Renders the first image of each row and arranges them in a 6-column display
-- Quick Overview
-  - Same as Full Overview, except only renders every 3rd row (for sheets of skins)
+  - The length option changes the amount of frames rendered
+  - A length of 0 renders the whole sheet from the starting index
+- Overview Mode
+  - Renders the first image of every third row and arranges them in a 6-column display
+  - The length option changes how many leftmost images after each row are rendered. It should be a value between 1 and 3.
+  - A length of 0 renders the same as a length of 3
 
 # Discord
 Join if you have any feedback

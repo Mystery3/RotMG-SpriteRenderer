@@ -1,0 +1,3371 @@
+{
+    "style": {
+        "Dark": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#272729",
+                "_1": "#303033",
+                "_2": "#3e3e42",
+                "_3": "#f2f2f2",
+                "_4": "#5789ab",
+                "_5": "#699ec2"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#272729"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#303033"
+                },
+                "graphic.TLabel": {
+                    "background": "#303033"
+                },
+                "infobar.TFrame": {
+                    "background": "#272729"
+                },
+                "infobar.TLabel": {
+                    "background": "#272729"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#272729",
+                    "bordercolor": "#272729",
+                    "lightcolor": "#272729",
+                    "darkcolor": "#272729"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#272729",
+                    "bordercolor": "#272729",
+                    "lightcolor": "#272729",
+                    "darkcolor": "#272729"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#3e3e42",
+                    "foreground": "#f2f2f2",
+                    "lightcolor": "#303033",
+                    "darkcolor": "#303033",
+                    "bordercolor": "#303033",
+                    "indicatorforeground": "#303033",
+                    "fieldbackground": "#3e3e42",
+                    "troughcolor": "#3e3e42",
+                    "insertcolor": "#f2f2f2",
+                    "arrowcolor": "#f2f2f2"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#3e3e42"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#272729"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#3e3e42"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#303033"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "selected",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ],
+                        [
+                            "selected",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#303033",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#303033",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#3e3e42",
+                "foreground": "#f2f2f2",
+                "selectcolor": "#f2f2f2",
+                "activebackground": "#5789ab",
+                "activeforeground": "#f2f2f2",
+                "borderwidth": 0
+            },
+            "icon_set": "dark"
+        },
+        "Light": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#d2d3d7",
+                "_1": "#e1e3e8",
+                "_2": "#f5f7fa",
+                "_3": "#181818",
+                "_4": "#90b7e9"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#d2d3d7"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#f5f7fa"
+                },
+                "graphic.TLabel": {
+                    "background": "#f5f7fa"
+                },
+                "infobar.TFrame": {
+                    "background": "#d2d3d7"
+                },
+                "infobar.TLabel": {
+                    "background": "#d2d3d7"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#d2d3d7",
+                    "bordercolor": "#d2d3d7",
+                    "lightcolor": "#d2d3d7",
+                    "darkcolor": "#d2d3d7"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#d2d3d7",
+                    "bordercolor": "#d2d3d7",
+                    "lightcolor": "#d2d3d7",
+                    "darkcolor": "#d2d3d7"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#e1e3e8",
+                    "foreground": "#181818",
+                    "lightcolor": "#f5f7fa",
+                    "darkcolor": "#f5f7fa",
+                    "bordercolor": "#f5f7fa",
+                    "indicatorforeground": "#f5f7fa",
+                    "fieldbackground": "#f5f7fa",
+                    "troughcolor": "#f5f7fa",
+                    "insertcolor": "#181818",
+                    "arrowcolor": "#181818"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "!disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "!disabled",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "selected",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "selected",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#f5f7fa",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#f5f7fa",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#f5f7fa",
+                "foreground": "#181818",
+                "selectcolor": "#181818",
+                "activebackground": "#90b7e9",
+                "activeforeground": "#181818",
+                "borderwidth": 0
+            },
+            "icon_set": "light"
+        },
+        "Custom 1": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#a84469",
+                "_1": "#e2aedd",
+                "_2": "#ebcbf4",
+                "_3": "#181818",
+                "_4": "#a7f1f4"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#a84469"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#ebcbf4"
+                },
+                "graphic.TLabel": {
+                    "background": "#ebcbf4"
+                },
+                "infobar.TFrame": {
+                    "background": "#a84469"
+                },
+                "infobar.TLabel": {
+                    "background": "#a84469"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#a84469",
+                    "bordercolor": "#a84469",
+                    "lightcolor": "#a84469",
+                    "darkcolor": "#a84469"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#a84469",
+                    "bordercolor": "#a84469",
+                    "lightcolor": "#a84469",
+                    "darkcolor": "#a84469"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#e2aedd",
+                    "foreground": "#181818",
+                    "lightcolor": "#ebcbf4",
+                    "darkcolor": "#ebcbf4",
+                    "bordercolor": "#ebcbf4",
+                    "indicatorforeground": "#a84469",
+                    "fieldbackground": "#ebcbf4",
+                    "troughcolor": "#ebcbf4",
+                    "insertcolor": "#181818",
+                    "arrowcolor": "#181818"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ],
+                        [
+                            "!disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ],
+                        [
+                            "disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ],
+                        [
+                            "disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ],
+                        [
+                            "disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "active",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#e2aedd"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a84469"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ],
+                        [
+                            "!disabled",
+                            "#ebcbf4"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "active",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#e2aedd"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a84469"
+                        ],
+                        [
+                            "active",
+                            "#a84469"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!disabled",
+                            "#e2aedd"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!selected",
+                            "#ebcbf4"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!selected",
+                            "#ebcbf4"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "!selected",
+                            "#ebcbf4"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#ebcbf4"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "selected",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#e2aedd"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#a7f1f4"
+                        ],
+                        [
+                            "selected",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#e2aedd"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#a84469"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#ebcbf4"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#ebcbf4",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#ebcbf4",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#ebcbf4",
+                "foreground": "#181818",
+                "selectcolor": "#181818",
+                "activebackground": "#a7f1f4",
+                "activeforeground": "#181818",
+                "borderwidth": 0
+            },
+            "icon_set": "silly"
+        },
+        "Custom 2": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#d2932f",
+                "_1": "#2c2044",
+                "_2": "#3e2f5b",
+                "_3": "#f2f2f2",
+                "_4": "#d2932f"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#d2932f"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#2c2044"
+                },
+                "graphic.TLabel": {
+                    "background": "#2c2044"
+                },
+                "infobar.TFrame": {
+                    "background": "#d2932f"
+                },
+                "infobar.TLabel": {
+                    "background": "#d2932f"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#d2932f",
+                    "bordercolor": "#d2932f",
+                    "lightcolor": "#d2932f",
+                    "darkcolor": "#d2932f"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#d2932f",
+                    "bordercolor": "#d2932f",
+                    "lightcolor": "#d2932f",
+                    "darkcolor": "#d2932f"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#3e2f5b",
+                    "foreground": "#f2f2f2",
+                    "lightcolor": "#2c2044",
+                    "darkcolor": "#2c2044",
+                    "bordercolor": "#2c2044",
+                    "indicatorforeground": "#2c2044",
+                    "fieldbackground": "#3e2f5b",
+                    "troughcolor": "#3e2f5b",
+                    "insertcolor": "#f2f2f2",
+                    "arrowcolor": "#f2f2f2"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "focus",
+                            "#3e2f5b"
+                        ],
+                        [
+                            "active",
+                            "#2c2044"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "active",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e2f5b"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "focus",
+                            "#3e2f5b"
+                        ],
+                        [
+                            "active",
+                            "#2c2044"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "active",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e2f5b"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#d2932f"
+                        ],
+                        [
+                            "focus",
+                            "#2c2044"
+                        ],
+                        [
+                            "active",
+                            "#2c2044"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#d2932f"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e2f5b"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#d2932f"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#d2932f"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#d2932f"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#2c2044"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#d2932f"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#2c2044"
+                        ],
+                        [
+                            "selected",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e2f5b"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#d2932f"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#d2932f"
+                        ],
+                        [
+                            "selected",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e2f5b"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#2c2044"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#2c2044"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#2c2044"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#2c2044"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#2c2044",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#2c2044",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#3e2f5b",
+                "foreground": "#f2f2f2",
+                "selectcolor": "#f2f2f2",
+                "activebackground": "#d2932f",
+                "activeforeground": "#f2f2f2",
+                "borderwidth": 0
+            },
+            "icon_set": "dark"
+        },
+        "Custom 3": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#272729",
+                "_1": "#303033",
+                "_2": "#3e3e42",
+                "_3": "#f2f2f2",
+                "_4": "#5789ab",
+                "_5": "#699ec2"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#272729"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#303033"
+                },
+                "graphic.TLabel": {
+                    "background": "#303033"
+                },
+                "infobar.TFrame": {
+                    "background": "#272729"
+                },
+                "infobar.TLabel": {
+                    "background": "#272729"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#272729",
+                    "bordercolor": "#272729",
+                    "lightcolor": "#272729",
+                    "darkcolor": "#272729"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#272729",
+                    "bordercolor": "#272729",
+                    "lightcolor": "#272729",
+                    "darkcolor": "#272729"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#3e3e42",
+                    "foreground": "#f2f2f2",
+                    "lightcolor": "#303033",
+                    "darkcolor": "#303033",
+                    "bordercolor": "#303033",
+                    "indicatorforeground": "#303033",
+                    "fieldbackground": "#3e3e42",
+                    "troughcolor": "#3e3e42",
+                    "insertcolor": "#f2f2f2",
+                    "arrowcolor": "#f2f2f2"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#3e3e42"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#272729"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#3e3e42"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#5789ab"
+                        ],
+                        [
+                            "focus",
+                            "#303033"
+                        ],
+                        [
+                            "active",
+                            "#303033"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#c3c3c3"
+                        ],
+                        [
+                            "focus",
+                            "#5789ab"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#699ec2"
+                        ],
+                        [
+                            "!selected",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#303033"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#303033"
+                        ],
+                        [
+                            "selected",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#272729"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#5789ab"
+                        ],
+                        [
+                            "selected",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#3e3e42"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#303033"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#303033"
+                        ],
+                        [
+                            "!disabled",
+                            "#f2f2f2"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#303033",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#303033",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#3e3e42",
+                "foreground": "#f2f2f2",
+                "selectcolor": "#f2f2f2",
+                "activebackground": "#5789ab",
+                "activeforeground": "#f2f2f2",
+                "borderwidth": 0
+            },
+            "icon_set": "dark"
+        },
+        "Custom 4": {
+            "_palette": {
+                "_comment": "This isn't read by the style handler, this is only for reference",
+                "_0": "#d2d3d7",
+                "_1": "#e1e3e8",
+                "_2": "#f5f7fa",
+                "_3": "#181818",
+                "_4": "#90b7e9"
+            },
+            "configure": {
+                "index.TButton": {
+                    "padding": 4,
+                    "width": 5,
+                    "anchor": "center"
+                },
+                "dropdown.TButton": {
+                    "width": 16,
+                    "anchor": "center"
+                },
+                "apply.TButton": {
+                    "width": 24,
+                    "padding": 5,
+                    "anchor": "w"
+                },
+                "TButton": {
+                    "borderwidth": 3,
+                    "padding": 3,
+                    "width": 16,
+                    "anchor": "w"
+                },
+                "index.TEntry": {
+                    "padding": 6
+                },
+                "TEntry": {
+                    "padding": 3,
+                    "borderwidth": 3
+                },
+                "TSpinbox": {
+                    "padding": 5
+                },
+                "TMenubutton": {
+                    "padding": 3
+                },
+                "TNotebook": {
+                    "borderwidth": 0
+                },
+                "separator.TFrame": {
+                    "background": "#d2d3d7"
+                },
+                "TScrollbar": {
+                    "gripcount": 0,
+                    "troughborderwidth": 3,
+                    "troughrelief": "flat"
+                },
+                "graphic.TFrame": {
+                    "background": "#f5f7fa"
+                },
+                "graphic.TLabel": {
+                    "background": "#f5f7fa"
+                },
+                "infobar.TFrame": {
+                    "background": "#d2d3d7"
+                },
+                "infobar.TLabel": {
+                    "background": "#d2d3d7"
+                },
+                "alert.TButton": {
+                    "padding": 1,
+                    "width": 16,
+                    "anchor": "w",
+                    "background": "#d2d3d7",
+                    "bordercolor": "#d2d3d7",
+                    "lightcolor": "#d2d3d7",
+                    "darkcolor": "#d2d3d7"
+                },
+                "settings.TButton": {
+                    "padding": 4,
+                    "width": 3,
+                    "anchor": "center",
+                    "background": "#d2d3d7",
+                    "bordercolor": "#d2d3d7",
+                    "lightcolor": "#d2d3d7",
+                    "darkcolor": "#d2d3d7"
+                },
+                ".": {
+                    "relief": "flat",
+                    "background": "#e1e3e8",
+                    "foreground": "#181818",
+                    "lightcolor": "#f5f7fa",
+                    "darkcolor": "#f5f7fa",
+                    "bordercolor": "#f5f7fa",
+                    "indicatorforeground": "#f5f7fa",
+                    "fieldbackground": "#f5f7fa",
+                    "troughcolor": "#f5f7fa",
+                    "insertcolor": "#181818",
+                    "arrowcolor": "#181818"
+                }
+            },
+            "map": {
+                "TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "!disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "settings.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "alert.TButton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "TMenubutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "!disabled",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "TCheckbutton": {
+                    "background": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#d2d3d7"
+                        ],
+                        [
+                            "active",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "pressed",
+                            "#90b7e9"
+                        ],
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ],
+                    "indicatorbackground": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "upperbordercolor": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "lowerbordercolor": [
+                        [
+                            "selected",
+                            "#90b7e9"
+                        ],
+                        [
+                            "!selected",
+                            "#f5f7fa"
+                        ]
+                    ]
+                },
+                "TEntry": {
+                    "fieldbackground": [
+                        [
+                            "focus",
+                            "#f5f7fa"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ]
+                    ]
+                },
+                "TNotebook.Tab": {
+                    "background": [
+                        [
+                            "active",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "selected",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ],
+                    "bordercolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "lightcolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "darkcolor": [
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "focuscolor": [
+                        [
+                            "focus",
+                            "#90b7e9"
+                        ],
+                        [
+                            "selected",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#e1e3e8"
+                        ]
+                    ]
+                },
+                "TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ]
+                },
+                "graphic.Vertical.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                },
+                "graphic.Horizontal.TScrollbar": {
+                    "background": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#d2d3d7"
+                        ]
+                    ],
+                    "arrowcolor": [
+                        [
+                            "disabled",
+                            "#f5f7fa"
+                        ],
+                        [
+                            "!disabled",
+                            "#181818"
+                        ]
+                    ]
+                }
+            },
+            "render_canvas": {
+                "background": "#f5f7fa",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "textile_canvas": {
+                "background": "#f5f7fa",
+                "borderwidth": 0,
+                "highlightthickness": 0
+            },
+            "menu": {
+                "background": "#f5f7fa",
+                "foreground": "#181818",
+                "selectcolor": "#181818",
+                "activebackground": "#90b7e9",
+                "activeforeground": "#181818",
+                "borderwidth": 0
+            },
+            "icon_set": "light"
+        }
+    },
+    "styletype": "Dark",
+    "fontsize": 10,
+    "padding": 4,
+    "autorender": false,
+    "show_tooltips": false
+}

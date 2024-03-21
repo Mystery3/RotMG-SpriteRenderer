@@ -9,6 +9,7 @@ rem pyinstaller cleanup
 move "%cd%\dist\Renderer.exe" "%cd%"
 rd "%cd%\dist"
 rd /s /q "%cd%\build"
+rd /s /q "%cd%\bin\modules"
 del "%cd%\Renderer.py"
 del "%cd%\Renderer.spec"
 

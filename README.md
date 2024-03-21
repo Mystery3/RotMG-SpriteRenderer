@@ -44,6 +44,10 @@ A replacement for Tuvior's Tool
   - The length option changes how many leftmost images after each row are rendered. It should be a value between 1 and 3.
   - A length of 0 renders the same as a length of 3
 
+# Build Instructions (for Windows)
+- Have [pyinstaller](https://pyinstaller.org/en/stable/installation.html) installed
+- Run build.bat
+
 # Discord
 Join if you have any feedback
 https://discord.gg/mdnVtbhuhM

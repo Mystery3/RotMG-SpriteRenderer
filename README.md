@@ -1,9 +1,6 @@
 # RotMG-Sprite-Renderer
 A replacement for Tuvior's Tool
 
-# Tutorial
-OUTDATED - https://imgur.com/a/0LIZ5kd
-
 # Features
 - Previewing sheets and renders
 - Seek feature that allows you to scroll through larger sheets along with manual index input

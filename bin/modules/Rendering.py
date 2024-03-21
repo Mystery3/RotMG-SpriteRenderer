@@ -34,7 +34,7 @@ class Sprite:
 
     def _silhouette(self, color: tuple[int, int, int]) -> Img.Image:
         mask = self.image.getchannel('A')
-        silhouette = self.image.copy()
+        silhouette = Img.new('RGBA', self.image.size, (*color, 0))
         silhouette.paste(Img.new('RGBA', self.image.size, (*color, 255)), mask = mask)
 
         return silhouette

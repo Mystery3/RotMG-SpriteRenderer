@@ -2,9 +2,6 @@ rem requires pyinstaller
 pyinstaller ^
     --onefile ^
     --windowed ^
-    --exclude-module IO ^
-    --exclude-module Rendering ^
-    --exclude-module UI ^
     --icon ./bin/favicon.ico ^
     Renderer.py 
 

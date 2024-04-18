@@ -144,7 +144,7 @@ class ScrollableFrame(ttk.Frame):
         self.Canvas.bind('<MouseWheel>', lambda event: self.Canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units'))
 
 class TextilePicker(ttk.Button):
-    def __init__(self, *args, image_var: IO.ImgVar, textiles: dict[int, list[Img.Image]], icon_set: dict[str, Img.Image], **kwargs): 
+    def __init__(self, *args, image_var: IO.ImgVar, textiles: dict[int, list[Img.Image]], icon_set: dict[str, Img.Image], config: IO.Config, **kwargs): 
         ttk.Button.__init__(self, *args, command = self._choose, compound = tk.LEFT, **kwargs)
 
         self._image_var = image_var
@@ -155,6 +155,8 @@ class TextilePicker(ttk.Button):
 
         self._Ipalette = ImgTk.PhotoImage(icon_set['palette'])
         self._Ifolder = ImgTk.PhotoImage(icon_set['folder'])
+
+        self.config = config
 
         self.configure(image = self._image)
 
@@ -241,7 +243,7 @@ class TextilePicker(ttk.Button):
         self._TLwindow.focus()
 
     def _set_file(self) -> None:
-        path = tkfile.askopenfilename(initialdir = './Textiles', filetypes = (('Image (png, tiff, tif, jpeg, jpg)', ('*.png', '*.tiff', '*.tif', '*.jpeg', '*.jpg')),))
+        path = tkfile.askopenfilename(initialdir = self.config.data['textiles_dir'], filetypes = (('Image (png, tiff, tif, jpeg, jpg)', ('*.png', '*.tiff', '*.tif', '*.jpeg', '*.jpg')),))
 
         if path:
             try:
@@ -454,6 +456,9 @@ class Settings(tk.Toplevel):
         self._Vpadding = tk.IntVar(self, self._config.data['padding'])
         self._Vautorender = tk.BooleanVar(self, self._config.data['autorender'])
         self._Vshow_tooltips = tk.BooleanVar(self, self._config.data['show_tooltips'])
+        self._Vsheets_dir = tk.StringVar(self, self._config.data['sheets_dir'])
+        self._Vrenders_dir = tk.StringVar(self, self._config.data['renders_dir'])
+        self._Vtextiles_dir = tk.StringVar(self, self._config.data['textiles_dir'])
 
         self._Iblank = ImgTk.PhotoImage(Img.new('RGBA', (27, 27), (0, 0, 0, 1)))
 
@@ -464,7 +469,7 @@ class Settings(tk.Toplevel):
         self._Foptions.grid(row = 0, column = 0, padx = 10, pady = 10, sticky = tk.W)
 
         self._OMstyletype = ttk.OptionMenu(self._Foptions, self._Vstyletype, self._Vstyletype.get(), 'Dark', 'Light', 'Custom 1', 'Custom 2', 'Custom 3', 'Custom 4')
-        self._OMstyletype.configure(compound = tk.CENTER, image = self._Iblank, width = 10)
+        self._OMstyletype.configure(compound = tk.CENTER, image = self._Iblank, width = 14)
         self._OMstyletype['menu'].configure(font = self.font, **self.menu_style)
         self._OMstyletype.grid(row = 0, column = 0, sticky = tk.W)
 
@@ -499,6 +504,65 @@ class Settings(tk.Toplevel):
         self._Cshow_tooltips = ttk.Checkbutton(self._Foptions, text = 'Show Tooltips', variable = self._Vshow_tooltips)
         self._Cshow_tooltips.grid(row = 4, column = 0, columnspan = 2, sticky = tk.W)
 
+        # generates functions for changing default dirs
+        def _change_dir_command(var: tk.StringVar) -> callable:
+            def f() -> None:
+                directory = tkfile.askdirectory(initialdir = var.get(), mustexist = True)
+                if directory == '': return
+                var.set(directory)
+            return f
+        
+        self._Bchange_sheets_dir = ttk.Button(self._Foptions, text = 'Sheets Default Directory', width = 25,
+                                               command = _change_dir_command(self._Vsheets_dir))
+        self._Bchange_sheets_dir.grid(row = 5, column = 0, columnspan = 3, sticky = tk.W)
+        self._TTchange_sheets_dir = tktt.ToolTip(self._Bchange_sheets_dir,
+                                          'Change default directory for searching for sheets.',
+                                          0.5, False, 100)
+
+        self._Bclear_sheets_dir = ttk.Button(self._Foptions, text = 'Clear', width = 6,
+                                              command = lambda: self._Vsheets_dir.set(''))
+        self._Bclear_sheets_dir.grid(row = 5, column = 3, sticky = tk.W)
+        self._TTclear_sheets_dir = tktt.ToolTip(self._Bclear_sheets_dir,
+                                          'Clear this option to have no default, the last folder accessed will be the default.',
+                                          0.5, False, 100)
+
+        self._Lsheets_dir = ttk.Label(self._Foptions, textvariable = self._Vsheets_dir)
+        self._Lsheets_dir.grid(row = 5, column = 4, padx = 10, sticky = tk.W)
+
+        self._Bchange_renders_dir = ttk.Button(self._Foptions, text = 'Renders Default Directory', width = 25,
+                                               command = _change_dir_command(self._Vrenders_dir))
+        self._Bchange_renders_dir.grid(row = 6, column = 0, columnspan = 3, sticky = tk.W)
+        self._TTchange_renders_dir = tktt.ToolTip(self._Bchange_renders_dir,
+                                          'Change default directory for saving renders.',
+                                          0.5, False, 100)
+
+        self._Bclear_renders_dir = ttk.Button(self._Foptions, text = 'Clear', width = 6,
+                                              command = lambda: self._Vrenders_dir.set(''))
+        self._Bclear_renders_dir.grid(row = 6, column = 3, sticky = tk.W)
+        self._TTclear_renders_dir = tktt.ToolTip(self._Bclear_renders_dir,
+                                          'Clear this option to have no default, the last folder accessed will be the default.',
+                                          0.5, False, 100)
+        
+        self._Lrenders_dir = ttk.Label(self._Foptions, textvariable = self._Vrenders_dir)
+        self._Lrenders_dir.grid(row = 6, column = 4, padx = 10, sticky = tk.W)
+
+        self._Bchange_textiles_dir = ttk.Button(self._Foptions, text = 'Textiles Default Directory', width = 25,
+                                               command = _change_dir_command(self._Vtextiles_dir))
+        self._Bchange_textiles_dir.grid(row = 7, column = 0, columnspan = 3, sticky = tk.W)
+        self._TTchange_textiles_dir = tktt.ToolTip(self._Bchange_textiles_dir,
+                                          'Change default directory for searching for textiles.',
+                                          0.5, False, 100)
+
+        self._Bclear_textiles_dir = ttk.Button(self._Foptions, text = 'Clear', width = 6,
+                                              command = lambda: self._Vtextiles_dir.set(''))
+        self._Bclear_textiles_dir.grid(row = 7, column = 3, sticky = tk.W)
+        self._TTclear_textiles_dir = tktt.ToolTip(self._Bclear_textiles_dir,
+                                          'Clear this option to have no default, the last folder accessed will be the default.',
+                                          0.5, False, 100)
+        
+        self._Lrenders_dir = ttk.Label(self._Foptions, textvariable = self._Vtextiles_dir)
+        self._Lrenders_dir.grid(row = 7, column = 4, padx = 10, sticky = tk.W)
+
         self._Fbuttons = ttk.Frame(self._Fmain)
         self._Fbuttons.grid(row = 1, column = 0, padx = 10, sticky = tk.W)
 
@@ -523,6 +587,9 @@ class Settings(tk.Toplevel):
         self._set(['padding'], self._Vpadding)
         self._set(['autorender'], self._Vautorender)
         self._set(['show_tooltips'], self._Vshow_tooltips)
+        self._set(['sheets_dir'], self._Vsheets_dir)
+        self._set(['renders_dir'], self._Vrenders_dir)
+        self._set(['textiles_dir'], self._Vtextiles_dir)
 
         try:
             self._config.write()
@@ -845,12 +912,12 @@ class App:
         self._DDcolor_textile.add(self._CPoutline_color)
 
         self._TPclothing = TextilePicker(self._Fcolor_textile_options, text = ' Clothing Texture', image_var = self._Vclothing_textile,
-                                         textiles = self._image_set['textiles'], icon_set = self._icon_set)
+                                         textiles = self._image_set['textiles'], icon_set = self._icon_set, config = self.config)
         self._TPclothing.grid(row = 3, column = 0)
         self._DDcolor_textile.add(self._TPclothing)
 
         self._TPaccessory = TextilePicker(self._Fcolor_textile_options, text = ' Accessory Texture', image_var = self._Vaccessory_textile, 
-                                          textiles = self._image_set['textiles'], icon_set = self._icon_set)
+                                          textiles = self._image_set['textiles'], icon_set = self._icon_set, config = self.config)
         self._TPaccessory.grid(row = 3, column = 1)
         self._DDcolor_textile.add(self._TPaccessory)
         ####### /COLOR AND TEXTILE OPTIONS
@@ -1089,7 +1156,7 @@ class App:
             func(*args, **kwargs)
 
     def _load_sheet(self) -> None:
-        path = tkfile.askopenfilename(initialdir = './Sheets', filetypes = (('Image (png, tiff, tif)', ('*.png', '*.tiff', '*.tif')),))
+        path = tkfile.askopenfilename(initialdir = self.config.data['sheets_dir'], filetypes = (('Image (png, tiff, tif)', ('*.png', '*.tiff', '*.tif')),))
         if path:
             try:
                 loaded = IO.load_sheet(path)
@@ -1152,7 +1219,7 @@ class App:
             IO.InfobarAlert(False, None, 'Paste Failed.')
 
     def _load_mask(self) -> None:
-        path = tkfile.askopenfilename(initialdir = './Sheets', filetypes = (('Image (png, tiff, tif)', ('*.png', '*.tiff', '*.tif')),))
+        path = tkfile.askopenfilename(initialdir = self.config.data['sheets_dir'], filetypes = (('Image (png, tiff, tif)', ('*.png', '*.tiff', '*.tif')),))
         if path:
             try:
                 loaded = IO.load_mask(path, self._Vsheet.get())
@@ -1241,7 +1308,7 @@ class App:
         if mode == 'Entity' or mode == 'Animation':
             filetype = 'gif'
         
-        path = tkfile.asksaveasfilename(initialdir = './Renders', filetypes = ((filetype.upper(), f'*.{filetype}'),))
+        path = tkfile.asksaveasfilename(initialdir = self.config.data['renders_dir'], filetypes = ((filetype.upper(), f'*.{filetype}'),))
         
         if path:
             try:

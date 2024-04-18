@@ -4,3 +4,4 @@ Textiles
 bin/modules/crash
 adds
 dist
+__pycache__

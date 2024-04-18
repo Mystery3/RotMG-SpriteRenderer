@@ -48,6 +48,7 @@ A replacement for Tuvior's Tool
 - PIL, pywin32, tkinter-tooltip
 
 # Build Instructions (for Windows)
+- Have Python >= 3.10
 - Have [pyinstaller](https://pyinstaller.org/en/stable/installation.html) installed
 - Run build.bat
 

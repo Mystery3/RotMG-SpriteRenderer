@@ -1,4 +1,11 @@
 {
+    "fontsize": 10,
+    "padding": 4,
+    "autorender": false,
+    "show_tooltips": false,
+    "sheets_dir": "./Sheets",
+    "renders_dir": "./Renders",
+    "textiles_dir": "./Textiles",
     "style": {
         "Dark": {
             "_palette": {
@@ -3363,9 +3370,5 @@
             "icon_set": "light"
         }
     },
-    "styletype": "Dark",
-    "fontsize": 10,
-    "padding": 4,
-    "autorender": false,
-    "show_tooltips": false
+    "styletype": "Dark"
 }

@@ -45,7 +45,7 @@ A replacement for Tuvior's Tool
   - A length of 0 renders the same as a length of 3
 
 # Dependencies
-- PIL, pywin32, tkinter-tooltip
+- pillow, pywin32, tkinter-tooltip
 
 # Build Instructions (for Windows)
 - Have Python >= 3.10

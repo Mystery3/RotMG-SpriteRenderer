@@ -5,3 +5,4 @@ bin/modules/crash
 adds
 dist
 __pycache__
+venv

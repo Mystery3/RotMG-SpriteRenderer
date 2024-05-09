@@ -49,7 +49,7 @@ A replacement for Tuvior's Tool
 
 # Build Instructions (for Windows)
 - Have Python >= 3.10
-- Have [pyinstaller](https://pyinstaller.org/en/stable/installation.html) installed
+- Have [pyinstaller](https://pyinstaller.org/en/stable/installation.html) and all dependencies installed
 - Run build.bat
 
 # Discord

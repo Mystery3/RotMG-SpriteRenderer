@@ -48,16 +48,14 @@ class Sprite:
         base_image = Img.new('RGBA', ((width + 2) * upscale, (height + 2) * upscale), (0, 0, 1, 0))
 
         if shadow:
-            shadow_base_image = Img.new('RGBA', ((width + 2) * upscale, (height + 2) * upscale), (*shadow_color, 0)) # 
+            shadow_base_image = Img.new('RGBA', ((width + 2) * upscale, (height + 2) * upscale), (*shadow_color, 0))
 
             shadow_silhouette = self._silhouette(shadow_color).resize((width * upscale, height * upscale), resample = Img.NEAREST)
             shadow_base_image.paste(shadow_silhouette, (upscale, upscale))
             
             shadow_base_image = shadow_base_image.filter(ImgF.BoxBlur(radius = upscale / 2)).filter(ImgF.BoxBlur(radius = upscale / 2)) # gauss approx that is ~15% faster
-            shadow_strength_mask = shadow_base_image.getchannel('A').point(lambda v: int(v * shadow_strength) if int(v * shadow_strength) < 256 else 255, 'L')
-            shadow_base_image.paste(Img.new('RGBA', shadow_base_image.size, (*shadow_color, 255)), mask = shadow_strength_mask)
-
-            base_image.paste(shadow_base_image)
+            shadow_strength_mask = shadow_base_image.getchannel('A').point(lambda v: 255 if int(v * shadow_strength) > 255 else int(v * shadow_strength), 'L')
+            base_image.paste(Img.new('RGBA', shadow_base_image.size, (*shadow_color, 255)), mask = shadow_strength_mask)
 
         if outline: # outlines thickness shouldn't be more than upscale
             outline_silhouette = self._silhouette(outline_color).resize((width * upscale, height * upscale), resample = Img.NEAREST)

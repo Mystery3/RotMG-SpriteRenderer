@@ -2,7 +2,7 @@
     "fontsize": 10,
     "padding": 4,
     "autorender": false,
-    "show_tooltips": false,
+    "show_tooltips": true,
     "sheets_dir": "./Sheets",
     "renders_dir": "./Renders",
     "textiles_dir": "./Textiles",

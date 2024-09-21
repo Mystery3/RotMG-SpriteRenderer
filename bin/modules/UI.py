@@ -707,8 +707,8 @@ class App:
 
         self._Vscale = tk.StringVar(self.root, '5')
         self._Vlength = tk.StringVar(self.root, '1')
-        self._Vshadow_strength = tk.StringVar(self.root, '1')
-        self._Voutline_thickness = tk.StringVar(self.root, '0')
+        self._Vshadow_strength = tk.StringVar(self.root, '0.7')
+        self._Voutline_thickness = tk.StringVar(self.root, '1')
         self._Vspeed = tk.StringVar(self.root, '500')
         self._Vbg_color = tk.StringVar(self.root, '#36393e')
         self._Vshadow_color = IO.ListVar((0, 0, 0))
@@ -1028,7 +1028,7 @@ class App:
                                     'In ms, the duration between frames. This can be a list of values separated by commas. If there are more frames than durations the durations will be looped over.',
                                     0.5, False, 100)
             self._TTalert = tktt.ToolTip(self._IBinfo_bar._Bexception_info, 
-                                    'Ctrl + q to clear. Errors and warnings appear here. Errors are also stored in the "bin/crash" file.',
+                                    'Ctrl + q to clear. Errors and warnings appear here. Errors are also stored in the "bin/error.log" file.',
                                     0.5, False, 100)
         # /TOOLTIPS
 
@@ -1327,7 +1327,7 @@ class App:
 
     def _alert(self, alert: IO.InfobarAlert) -> None:
         if alert.exception != None:
-            with open('./bin/crash', 'a') as f:
+            with open('./bin/error.log', 'a') as f:
                 traceback.print_exception(alert.exception, file = f)
                 f.write('\n\n-----------------------------------------------------------------------------------------------------\n\n\n')
 

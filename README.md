@@ -1,5 +1,5 @@
 # RotMG-Sprite-Renderer
-A replacement for Tuvior's Tool
+A Windows replacement for Tuvior's Tool
 
 # Features
 - Previewing sheets and renders
@@ -23,7 +23,7 @@ A replacement for Tuvior's Tool
    - Control + q clears any alerts
    - Arrow Keys seek through the sheet
    - Control + Arrow Keys scrolls in the render
-   - Escape removes focus from any widget
+   - Escape removes focus from any field or button
    - Enter/Return renders with the current settings
 
 # Modes
@@ -44,13 +44,12 @@ A replacement for Tuvior's Tool
   - The length option changes how many leftmost images after each row are rendered. It should be a value between 1 and 3.
   - A length of 0 renders the same as a length of 3
 
-# Dependencies
-- pillow, pywin32, tkinter-tooltip
-
 # Build Instructions (for Windows)
 - Have Python >= 3.10
-- Have [pyinstaller](https://pyinstaller.org/en/stable/installation.html) and all dependencies installed
+- Have a C compiler (Nuitka will prompt)
+- Install all dependencies in requirements.txt (pip install -r requirements.txt)
 - Run build.bat
+- .del files can be deleted, they are only there so the folders can be archived
 
 # Discord
 Join if you have any feedback
